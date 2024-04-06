@@ -1,11 +1,16 @@
 WIDTH = 1280
 HEIGHT = 800
 
-FPS = 60
+FPS = 64
 BLOCK_LAYER = 1
 TILESIZE = 32
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
+
+PLAYER_LAYER = 2
+PLAYER_SPEED = 5
+PLAYER_FALL_SPEED = 40
+PLAYER_JUMP_HEIGHT = 12
 
 basemap = [
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
@@ -92,3 +97,4 @@ level2 = [
 ]
 
 levels = [basemap, level1, level2]
+start_position = [(0,21), (0,21), (0,20)]

@@ -1,5 +1,6 @@
 from config import *
 import pygame
+
 class Block(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
@@ -12,7 +13,7 @@ class Block(pygame.sprite.Sprite):
         self.width = TILESIZE
         self.height = TILESIZE
 
-        image_brick = pygame.image.load("images/bricks.png")
+        image_brick = pygame.image.load("resources/images/map_images/bricks.png")
         self.image = pygame.transform.scale(image_brick, (self.width, self.height))
 
         # Ustaw pozycję bloku
@@ -24,7 +25,7 @@ class Door(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
         self._layer = BLOCK_LAYER
-        self.groups = self.game.all_sprites, self.game.blocks
+        self.groups = self.game.all_sprites, self.game.doors
         pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.x = x * TILESIZE
@@ -32,7 +33,7 @@ class Door(pygame.sprite.Sprite):
         self.width = 3 * TILESIZE 
         self.height = 4 * TILESIZE
 
-        image_brick = pygame.image.load("images/door_stairs.png")
+        image_brick = pygame.image.load("resources/images/map_images/door_stairs.png")
         self.image = pygame.transform.scale(image_brick, (self.width, self.height))
 
         # Ustaw pozycję bloku
@@ -44,7 +45,7 @@ class Fake(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
         self._layer = BLOCK_LAYER
-        self.groups = self.game.all_sprites, self.game.blocks
+        self.groups = self.game.all_sprites, self.game.fakes
         pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.x = x * TILESIZE
@@ -52,7 +53,7 @@ class Fake(pygame.sprite.Sprite):
         self.width = TILESIZE
         self.height = TILESIZE
 
-        image_brick = pygame.image.load("images/bricks.png")
+        image_brick = pygame.image.load("resources/images/map_images/bricks.png")
         self.image = pygame.transform.scale(image_brick, (self.width, self.height))
 
         # Ustaw pozycję bloku
