@@ -156,6 +156,8 @@ class Player(pygame.sprite.Sprite):
                     self.is_jump = False
                 if self.y_change < 0:
                     self.rect.y = hits[0].rect.bottom
+                    if self.is_jump:
+                        self.jump_count = -1
                     
         hits = pygame.sprite.spritecollide(self, self.game.doors, False)
         if hits:
