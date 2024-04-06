@@ -8,7 +8,10 @@ import os
 class Game:
     def __init__(self):
         pygame.init()
+        icon = pygame.image.load('resources/images/icon.png')
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption('Prince Of Persia')
+        pygame.display.set_icon(icon)
         # self.screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
         self.clock = pygame.time.Clock()
         self.running = True
