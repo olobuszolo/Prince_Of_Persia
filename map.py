@@ -32,14 +32,28 @@ class Door(pygame.sprite.Sprite):
         self.y = y * TILESIZE
         self.width = 3 * TILESIZE 
         self.height = 4 * TILESIZE
+        
+        self.is_open = False
 
-        image_brick = pygame.image.load("resources/images/map_images/door_stairs.png")
-        self.image = pygame.transform.scale(image_brick, (self.width, self.height))
+        self.image_brick_close = pygame.image.load("resources/images/map_images/door_stairs.png")
+        self.image_brick_open = pygame.image.load("resources/images/map_images/door_stairs_open.png")
+        self.image = pygame.transform.scale(self.image_brick_close, (self.width, self.height))
 
         # Ustaw pozycję bloku
         self.rect = self.image.get_rect()
         # self.rect.topleft = (self.x, self.y)
         self.rect.bottomleft = (self.x - 32, self.y + 32)
+        
+    def update(self):
+        if self.game.player.get_next_level_pred():
+            if not self.is_open:
+                self.image = pygame.transform.scale(self.image_brick_open, (self.width, self.height))
+                self.is_open = True
+        else:
+            if self.is_open:
+                self.image = pygame.transform.scale(self.image_brick_close, (self.width, self.height))
+                self.is_open = False
+            
 
 class Fake(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
