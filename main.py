@@ -12,7 +12,6 @@ class Game:
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('Prince Of Persia')
         pygame.display.set_icon(icon)
-        # self.screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
         self.clock = pygame.time.Clock()
         self.running = True
         
@@ -30,9 +29,18 @@ class Game:
                     Block(self, j, i)
                 if column == "D":
                     Door(self, j, i)
-                if column == "F":
-                    Fake(self, j, i)
-
+                if column == "L":
+                    FallingLeft(self, j, i)
+                if column == "R":
+                    FallingRight(self, j, i)
+                if column == "T":
+                    Trap(self, j, i)
+                if column == "S":
+                    Spikes(self, j, i)  
+                if column == "H":
+                    SemiDoors(self, j, i)
+                if column == "P":
+                    Protection(self, j, i)
 
     def new(self):
         self.playing = True
@@ -41,6 +49,11 @@ class Game:
         self.blocks = pygame.sprite.LayeredUpdates()
         self.doors = pygame.sprite.LayeredUpdates()
         self.fakes = pygame.sprite.LayeredUpdates()
+        self.semidoors = pygame.sprite.LayeredUpdates()
+        self.traps = pygame.sprite.LayeredUpdates()
+        self.spikes = pygame.sprite.LayeredUpdates()
+        self.protections = pygame.sprite.LayeredUpdates()
+        self.collisions = pygame.sprite.LayeredUpdates()
 
         # self.createTilemap()
         self.createTilemap(levels[self.current_level_index])
@@ -51,25 +64,24 @@ class Game:
         self.player = Player(self, start_x, start_y)
 
     def map_update(self):
-        # Iteruj przez wszystkie sprite'y i usuń te, które są typu Fake
         for sprite in self.all_sprites.sprites():
-            if isinstance(sprite, Fake):
-                sprite.kill()  # Usuń sprite
-    
+            if isinstance(sprite, Trap):
+                sprite.kill()
+                
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.playing = False
                 self.running = False
+
             elif event.type == pygame.KEYDOWN:  #robocze przelaczanie mapy
                 if event.key == pygame.K_q:
                     self.change_level = True
-                if event.key == pygame.K_f:
-                    self.map_update()
-                #przejście do następnego levelu
-                if event.key == pygame.K_DOWN and self.player.get_next_level_pred():
+                if (event.key == pygame.K_DOWN and self.player.get_next_level_pred()):
                     self.change_level = True
-                
+
+
+
     def update(self):
         self.all_sprites.update()
 
@@ -100,9 +112,13 @@ os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 g = Game()
 g.new()
+# pygame.mixer.music.load('resources\piesn.mp3')
+# pygame.mixer.music.play(-1)
+
 print(g.blocks.layers(),g.all_sprites.layers())
 while g.running:
     g.main()
 
+# pygame.mixer.music.stop()
 pygame.quit()
 sys.exit()
