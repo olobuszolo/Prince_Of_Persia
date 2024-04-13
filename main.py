@@ -123,8 +123,9 @@ os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 g = Game()
 g.new()
-# pygame.mixer.music.load('resources\piesn.mp3')
-# pygame.mixer.music.play(-1)
+pygame.mixer.music.load('resources\sounds\\theme.mp3')
+pygame.mixer.music.play(-1)
+pygame.mixer.music.set_volume(0.3)
 
 # print(g.blocks.layers(),g.all_sprites.layers())
 while g.running:
