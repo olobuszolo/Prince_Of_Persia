@@ -55,7 +55,6 @@ class Game:
         self.protections = pygame.sprite.LayeredUpdates()
         self.collisions = pygame.sprite.LayeredUpdates()
 
-        # self.createTilemap()
         self.createTilemap(levels[self.current_level_index])
         
         #postawienie gracza

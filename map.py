@@ -14,7 +14,7 @@ class Block(pygame.sprite.Sprite): #B
         self.width = TILESIZE
         self.height = TILESIZE
 
-        image_brick = pygame.image.load("resources/images/map_images/bricks.png")
+        image_brick = pygame.image.load("resources/images/map_images/newbrick.png")
         self.image = pygame.transform.scale(image_brick, (self.width, self.height))
 
         self.rect = self.image.get_rect()
@@ -127,6 +127,7 @@ class Trap(pygame.sprite.Sprite):
         self._layer = BLOCK_LAYER
         self.groups = self.game.all_sprites, self.game.fakes
         pygame.sprite.Sprite.__init__(self, self.groups)
+        self.colission = False
 
         self.x = x * TILESIZE
         self.y = y * TILESIZE
@@ -134,13 +135,20 @@ class Trap(pygame.sprite.Sprite):
         self.height = TILESIZE
 
         self.images = [
-            pygame.image.load("resources/images/map_images/bricks.png"),
+            pygame.image.load("resources/images/map_images/newbrick.png"),
         ]
         self.image_index = 0 
         self.image = pygame.transform.scale(self.images[self.image_index], (self.width, self.height))
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
+
+    # def update(self):
+    #     collisions = pygame.sprite.spritecollide(self, self.game.all_sprites, True)
+    #     for sprite in collisions:
+    #         if sprite != self:
+    #             sprite.kill()
+
 
 class Spikes(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
