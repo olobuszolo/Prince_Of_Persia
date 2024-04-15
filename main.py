@@ -17,7 +17,7 @@ class Game:
         
         # wczytanie animacji
         self.character_spritesheet = Spritesheet('resources/images/player_images/character.png')
-        self.go_background = pygame.image.load('resources/images/game_over.png')
+        # self.go_background = pygame.image.load('resources/images/game_over.png')
         
         self.current_level_index = 0
         self.change_level = False
@@ -123,7 +123,7 @@ os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 g = Game()
 g.new()
-pygame.mixer.music.load('resources\sounds\\theme.mp3')
+pygame.mixer.music.load('resources\\sounds\\theme.mp3')
 pygame.mixer.music.play(-1)
 pygame.mixer.music.set_volume(0.3)
 
