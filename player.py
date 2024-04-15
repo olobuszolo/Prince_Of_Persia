@@ -20,7 +20,7 @@ use down to enter next level.
 '''
 
 class Player(pygame.sprite.Sprite):
-    def  __init__(self,game,x,y):
+    def  __init__(self,game,x,y,health,health_bar_size):
         self.game = game
         self._layer = PLAYER_LAYER
         self.groups = self.game.all_sprites
@@ -41,7 +41,7 @@ class Player(pygame.sprite.Sprite):
         self.enter_next_semi_level = False
         self.is_on_trap = False
         
-        self.fall = False
+        self.fall_count = -1
         
         self.facing = 'right'
         self.animation_loop = 1
@@ -51,6 +51,12 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
+        
+        self.health_bar = HealthBar(self.game,self,health_bar_size)
+        self.current_health = health
+        self.maximum_health = PLAYER_MAX_HEALTH
+        self.health_bar_length = 100
+        self.halth_ratio = self.maximum_health / self.health_bar_length
         
     def animate(self):
         # down_animations = [self.game.character_spritesheet.get_sprite(3, 2, self.width, self.height),
@@ -113,7 +119,7 @@ class Player(pygame.sprite.Sprite):
         self.collide_blocks('x')
         self.rect.y += self.y_change
         self.collide_blocks('y')
-
+        
         self.x_change = 0
         self.y_change = 0
 
@@ -124,10 +130,14 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         
         if keys[pygame.K_LEFT]:
+            # for sprite in self.game.all_sprites:
+            #     sprite.rect.x += PLAYER_SPEED
             self.x_change -= PLAYER_SPEED
             self.facing = 'left'
             
         if keys[pygame.K_RIGHT]:
+            # for sprite in self.game.all_sprites:
+            #     sprite.rect.x -= PLAYER_SPEED
             self.x_change += PLAYER_SPEED
             self.facing = 'right'
             
@@ -135,12 +145,18 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_UP]:
                 self.is_jump = True
             else:
-                self.y_change += PLAYER_FALL_SPEED
+                if self.fall_count >= -11:
+                    self.y_change -= (self.fall_count * abs(self.fall_count)) * 0.4
+                    self.fall_count -= 1
+                else:
+                    self.y_change=PLAYER_FALL_SPEED+1
                 
         else:
-            self.y_change -= (self.jump_count * abs(self.jump_count)) * 0.4
-            if self.jump_count >= -10:
+            if self.jump_count >= -11:
+                self.y_change -= (self.jump_count * abs(self.jump_count)) * 0.4
                 self.jump_count -= 1
+            else:
+                self.y_change=PLAYER_FALL_SPEED+1
     
     def collide_blocks(self, direction):
         if direction == "x":
@@ -163,6 +179,10 @@ class Player(pygame.sprite.Sprite):
                 if self.y_change > 0:
                     self.rect.y = hits[0].rect.top - self.rect.height
                     self.jump_count = PLAYER_JUMP_HEIGHT
+                    self.fall_count = -1
+                    if self.y_change>PLAYER_FALL_SPEED:
+                        self.get_damage(32)
+                    self.y_change=0
                     self.is_jump = False
                 if self.y_change < 0:
                     self.rect.y = hits[0].rect.bottom
@@ -188,7 +208,6 @@ class Player(pygame.sprite.Sprite):
         hits_traps = pygame.sprite.spritecollide(self, self.game.fakes, False)
         if hits_traps:
             self.game.map_update()
-
             
     def get_next_level_pred(self):
         return self.enter_next_level
@@ -198,3 +217,75 @@ class Player(pygame.sprite.Sprite):
     
     def get_trap_status_pred(self):
         return self.is_on_trap
+
+    def get_damage(self,amount):
+        if self.current_health > 0:
+            self.current_health -= amount
+            self.health_bar.change_current_hp(-amount)
+        if self.current_health <= 0:
+            self.current_health = 0
+            
+    def get_health(self,amount):
+        if self.current_health < self.maximum_health:
+            self.current_health += amount
+            self.health_bar.change_current_hp(amount)
+        if self.current_health >= self.maximum_health:
+            self.current_health = self.maximum_health
+        
+
+class HealthBar(pygame.sprite.Sprite):
+    def  __init__(self,game,player,size):
+        self.game = game
+        self.player = player
+        self._layer = PLAYER_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self,self.groups)
+        
+        self.x = size
+        self.y = TILESIZE # * 2
+        self.width = 10 * TILESIZE
+        self.height = TILESIZE//2
+        
+        # self.image = pygame.Surface([self.x,self.height])
+        # self.image.fill(GREEN)
+        
+        border_width = 2
+        self.image = pygame.Surface((self.width+2*border_width,self.height + 2* border_width))
+        self.image.fill(WHITE)
+        # border_surface.fill(WHITE)
+        # border_surface.blit(self.image,(border_width,border_width))
+        left_surface = pygame.Surface((self.x,self.height))
+        left_surface.fill(GREEN)
+        right_surface = pygame.Surface((self.width-self.x,self.height))
+        right_surface.fill(BLACK)
+        self.image.blit(left_surface,(2,2))
+        self.image.blit(right_surface,(self.x+2,2))
+        # self.image = border_surface
+        self.rect = self.image.get_rect()
+        
+        self.rect.x = TILESIZE // 2
+        self.rect.y = HEIGHT - TILESIZE//1.5
+    def change_current_hp(self,amount):
+        if self.x+amount > 0 and self.x+amount<self.width:
+            # print(self.player.current_health)
+            self.x+=amount
+            left_surface = pygame.Surface((self.x,self.height))
+            left_surface.fill(GREEN)
+            right_surface = pygame.Surface((self.width-self.x,self.height))
+            left_border = pygame.Surface((2,self.height))
+            left_border.fill(WHITE)
+            right_surface.fill(BLACK)
+            self.image.blit(left_surface,(2,2))
+            self.image.blit(right_surface,(self.x+2,2))
+            # self.image.blit(left_border,(self.width+2,2))
+        elif self.x+amount<=0:
+            self.x=self.width
+            surface = pygame.Surface((self.x,self.height))
+            surface.fill(BLACK)
+            self.image.blit(surface,(2,2))
+            print("YOU DIED")
+        else:
+            self.x=self.width
+            surface = pygame.Surface((self.x,self.height))
+            surface.fill(GREEN)
+            self.image.blit(surface,(2,2))
