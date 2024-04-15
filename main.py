@@ -17,6 +17,7 @@ class Game:
         
         # wczytanie animacji
         self.character_spritesheet = Spritesheet('resources/images/player_images/character.png')
+        self.go_background = pygame.image.load('resources/images/game_over.png')
         
         self.current_level_index = 0
         self.change_level = False
