@@ -42,6 +42,14 @@ class Game:
                     SemiDoors(self, j, i)
                 if column == "P":
                     Protection(self, j, i)
+                if column == "T":
+                    NewTrap(self, j, i)
+                if column == "L":
+                    Lift(self, j, i)
+                if column == "U":
+                    UpperPress(self, j, i)
+                # if column == "A":
+                #     Activate(self, j, i)
 
     def new(self,health_bar_size=10*TILESIZE, player_healt=PLAYER_MAX_HEALTH):
         self.playing = True
@@ -55,6 +63,7 @@ class Game:
         self.spikes = pygame.sprite.LayeredUpdates()
         self.protections = pygame.sprite.LayeredUpdates()
         self.collisions = pygame.sprite.LayeredUpdates()
+        self.lift = pygame.sprite.LayeredUpdates()
 
         self.createTilemap(levels[self.current_level_index])
         
