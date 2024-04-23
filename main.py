@@ -30,12 +30,10 @@ class Game:
                     Block(self, j, i)
                 if column == "D":
                     Door(self, j, i)
-                if column == "L":
+                if column == "Y":
                     FallingLeft(self, j, i)
                 if column == "R":
                     FallingRight(self, j, i)
-                if column == "T":
-                    Trap(self, j, i)
                 if column == "S":
                     Spikes(self, j, i)  
                 if column == "H":
@@ -48,8 +46,11 @@ class Game:
                     Lift(self, j, i)
                 if column == "U":
                     UpperPress(self, j, i)
-                # if column == "A":
-                #     Activate(self, j, i)
+                if column == "X":
+                    DownPress(self, j, i)
+                if column == "Z":
+                    FallingLeftBottomUp(self, j, i)
+
 
     def new(self,health_bar_size=10*TILESIZE, player_healt=PLAYER_MAX_HEALTH):
         self.playing = True
@@ -64,6 +65,8 @@ class Game:
         self.protections = pygame.sprite.LayeredUpdates()
         self.collisions = pygame.sprite.LayeredUpdates()
         self.lift = pygame.sprite.LayeredUpdates()
+        self.upper_press = pygame.sprite.LayeredUpdates()
+        self.down_press = pygame.sprite.LayeredUpdates()
 
         self.createTilemap(levels[self.current_level_index])
         
@@ -71,11 +74,6 @@ class Game:
         start_x = start_position[self.current_level_index][0]
         start_y = start_position[self.current_level_index][1]
         self.player = Player(self, start_x, start_y, player_healt, health_bar_size)
-
-    def map_update(self):
-        for sprite in self.all_sprites.sprites():
-            if isinstance(sprite, Trap):
-                sprite.kill()
                 
     def events(self):
         for event in pygame.event.get():
@@ -83,7 +81,7 @@ class Game:
                 self.playing = False
                 self.running = False
 
-            elif event.type == pygame.KEYDOWN:  #robocze przelaczanie mapy
+            elif event.type == pygame.KEYDOWN:  #robocze przelaczanie mapy5
                 if event.key == pygame.K_q:
                     self.change_level = True
                 if (event.key == pygame.K_DOWN and self.player.get_next_level_pred()):
@@ -132,9 +130,9 @@ os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 g = Game()
 g.new()
-pygame.mixer.music.load('resources\\sounds\\theme.mp3')
-pygame.mixer.music.play(-1)
-pygame.mixer.music.set_volume(0.3)
+# pygame.mixer.music.load('resources\\sounds\\theme.mp3')
+# pygame.mixer.music.play(-1)
+# pygame.mixer.music.set_volume(0.3)
 
 # print(g.blocks.layers(),g.all_sprites.layers())
 while g.running:
