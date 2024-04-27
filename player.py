@@ -1,7 +1,7 @@
 import pygame
 from config import *
 import math
-import random
+from icecream import ic
 
 class Spritesheet:
     def __init__(self, file):
@@ -63,6 +63,7 @@ class Player(pygame.sprite.Sprite):
         self.halth_ratio = self.maximum_health / self.health_bar_length
         
         self.attack = PLAYER_DEFAULT_DAMAGE
+        self.is_attacking = False
         
     def animate(self):
 
@@ -95,12 +96,12 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         self.movement()
         self.animate()
-        self.collide_enemy()
            
         self.rect.x += self.x_change
         self.collide_blocks('x')
         self.rect.y += self.y_change
         self.collide_blocks('y')
+        self.collide_enemy()
         
         self.x_change = 0
         self.y_change = 0
@@ -112,14 +113,10 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         
         if keys[pygame.K_LEFT]:
-            # for sprite in self.game.all_sprites:
-            #     sprite.rect.x += PLAYER_SPEED
             self.x_change -= PLAYER_SPEED
             self.facing = 'left'
             
         if keys[pygame.K_RIGHT]:
-            # for sprite in self.game.all_sprites:
-            #     sprite.rect.x -= PLAYER_SPEED
             self.x_change += PLAYER_SPEED
             self.facing = 'right'
             
@@ -143,9 +140,9 @@ class Player(pygame.sprite.Sprite):
     def collide_enemy(self):
         hits = pygame.sprite.spritecollide(self,self.game.enemies,False)
         if hits:
-            # self.get_damage(32)
-            self.kill()
-            self.game.playing = False
+            if self.y_change > 2:
+                for enemy in hits:
+                    enemy.get_damage(8)
     
     def collide_blocks(self, direction):
         flag_lift = False
@@ -154,7 +151,6 @@ class Player(pygame.sprite.Sprite):
         if direction == "x":
             hits = pygame.sprite.spritecollide(self, self.game.collisions, False)
             hits_protections = pygame.sprite.spritecollide(self, self.game.protections, False)
-            # hits_spikes = pygame.sprite.spritecollide(self, self.game.spikes, False)
             if hits:
                 if self.x_change > 0:
                     self.rect.x = hits[0].rect.left - self.rect.width
@@ -165,19 +161,6 @@ class Player(pygame.sprite.Sprite):
                     self.rect.x = hits_protections[0].rect.left - self.rect.width
                 if self.x_change < 0:
                     self.rect.x = hits_protections[0].rect.right
-            # if hits_spikes:
-            #     current_time = pygame.time.get_ticks()
-
-            #     # Sprawdź, czy wystarczy czasu od ostatniego zadania obrażeń
-            #     if current_time - self.last_spike_damage_time >= 5000:  # 5000 ms = 5 sekund
-            #         self.get_damage(32)
-            #         self.game.last_spike_damage_time = current_time
-            # if hits_spikes:
-            #     self.get_damage(32)
-                # if self.x_change > 0:
-                #     self.rect.x = self.rect.x - 64
-                # else:
-                #     self.rect.x = self.rect.x + 64
                     
         if direction == "y":
             hits = pygame.sprite.spritecollide(self, self.game.blocks, False)
@@ -197,7 +180,9 @@ class Player(pygame.sprite.Sprite):
                         self.get_damage(32)
                     self.y_change=0
                     self.is_jump = False
-                if self.y_change < 0:
+                if self.y_change ==-40:
+                    self.rect.y -= self.y_change
+                elif self.y_change < 0:
                     self.rect.y = hits[0].rect.bottom
                     if self.is_jump:
                         self.jump_count = -1
@@ -275,10 +260,6 @@ class Player(pygame.sprite.Sprite):
             self.enter_next_level = False
             self.enter_next_semi_level = False
             
-        hits_traps = pygame.sprite.spritecollide(self, self.game.fakes, False)
-        # if hits_traps:
-        #     self.game.map_update()
-            
     def get_next_level_pred(self):
         return self.enter_next_level
 
@@ -290,6 +271,10 @@ class Player(pygame.sprite.Sprite):
 
     def get_damage(self,amount):
         if self.current_health > 0:
+            channel = pygame.mixer.find_channel()
+            sound = pygame.mixer.Sound('resources\\sounds\\guard-hit.wav')
+            sound.set_volume(0.2)
+            channel.play(sound)
             self.current_health -= amount
             self.health_bar.change_current_hp(-amount)
         if self.current_health <= 0:
@@ -312,32 +297,26 @@ class HealthBar(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self,self.groups)
         
         self.x = size
-        self.y = TILESIZE # * 2
+        self.y = TILESIZE
         self.width = 10 * TILESIZE
         self.height = TILESIZE//2
         
-        # self.image = pygame.Surface([self.x,self.height])
-        # self.image.fill(GREEN)
         
         border_width = 2
         self.image = pygame.Surface((self.width+2*border_width,self.height + 2* border_width))
         self.image.fill(WHITE)
-        # border_surface.fill(WHITE)
-        # border_surface.blit(self.image,(border_width,border_width))
         left_surface = pygame.Surface((self.x,self.height))
         left_surface.fill(GREEN)
         right_surface = pygame.Surface((self.width-self.x,self.height))
         right_surface.fill(BLACK)
         self.image.blit(left_surface,(2,2))
         self.image.blit(right_surface,(self.x+2,2))
-        # self.image = border_surface
         self.rect = self.image.get_rect()
         
         self.rect.x = TILESIZE // 2
         self.rect.y = HEIGHT - TILESIZE//1.5
     def change_current_hp(self,amount):
         if self.x+amount > 0 and self.x+amount<self.width:
-            # print(self.player.current_health)
             self.x+=amount
             left_surface = pygame.Surface((self.x,self.height))
             left_surface.fill(GREEN)
@@ -347,7 +326,6 @@ class HealthBar(pygame.sprite.Sprite):
             right_surface.fill(BLACK)
             self.image.blit(left_surface,(2,2))
             self.image.blit(right_surface,(self.x+2,2))
-            # self.image.blit(left_border,(self.width+2,2))
         elif self.x+amount<=0:
             self.x=self.width
             surface = pygame.Surface((self.x,self.height))

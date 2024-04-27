@@ -100,15 +100,16 @@ class Game:
                     self.player.get_health(32)  # szybkie zamykanie gry
                 if event.key == pygame.K_ESCAPE:
                     sys.exit()
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_SPACE and not self.player.is_attacking:
+                    self.player.is_attacking = True
                     channel = pygame.mixer.find_channel()
                     sound = pygame.mixer.Sound('resources\\sounds\\sword_fight_1.wav')
-                    sound.set_volume(0.2)
+                    sound.set_volume(0.15)
                     channel.play(sound)
                     if self.player.facing == 'right':
-                        Attack(self,self.player.rect.x + TILESIZE,self.player.rect.y)
+                        Attack(self,self.player.rect.x + TILESIZE,self.player.rect.y,'enemy')
                     if self.player.facing == 'left':
-                        Attack(self,self.player.rect.x - TILESIZE,self.player.rect.y)
+                        Attack(self,self.player.rect.x - TILESIZE,self.player.rect.y,'enemy')
 
 
 
