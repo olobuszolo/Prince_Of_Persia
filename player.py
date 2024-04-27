@@ -23,7 +23,7 @@ class Player(pygame.sprite.Sprite):
     def  __init__(self,game,x,y,health,health_bar_size):
         self.game = game
         self._layer = PLAYER_LAYER
-        self.groups = self.game.all_sprites
+        self.groups = self.game.all_sprites, self.game.players
         pygame.sprite.Sprite.__init__(self,self.groups)
         
         self.x = x * TILESIZE
@@ -62,14 +62,9 @@ class Player(pygame.sprite.Sprite):
         self.health_bar_length = 100
         self.halth_ratio = self.maximum_health / self.health_bar_length
         
+        self.attack = PLAYER_DEFAULT_DAMAGE
+        
     def animate(self):
-        # down_animations = [self.game.character_spritesheet.get_sprite(3, 2, self.width, self.height),
-        #                    self.game.character_spritesheet.get_sprite(35, 2, self.width, self.height),
-        #                    self.game.character_spritesheet.get_sprite(68, 2, self.width, self.height)]
-
-        # up_animations = [self.game.character_spritesheet.get_sprite(3, 34, self.width, self.height),
-        #                  self.game.character_spritesheet.get_sprite(35, 34, self.width, self.height),
-        #                  self.game.character_spritesheet.get_sprite(68, 34, self.width, self.height)]
 
         left_animations = [self.game.character_spritesheet.get_sprite(3, 98, self.width, self.height),
                            self.game.character_spritesheet.get_sprite(35, 98, self.width, self.height),
@@ -78,24 +73,6 @@ class Player(pygame.sprite.Sprite):
         right_animations = [self.game.character_spritesheet.get_sprite(3, 66, self.width, self.height),
                             self.game.character_spritesheet.get_sprite(35, 66, self.width, self.height),
                             self.game.character_spritesheet.get_sprite(68, 66, self.width, self.height)]
-        
-        # if self.facing == "down":
-        #     if self.y_change == 0:
-        #         self.image = self.game.character_spritesheet.get_sprite(3, 2, self.width, self.height)
-        #     else:
-        #         self.image = down_animations[math.floor(self.animation_loop)]
-        #         self.animation_loop += 0.1
-        #         if self.animation_loop >= 3:
-        #             self.animation_loop = 1
-                    
-        # if self.facing == "up":
-        #     if self.y_change == 0:
-        #         self.image = self.game.character_spritesheet.get_sprite(3, 34, self.width, self.height)
-        #     else:
-        #         self.image = up_animations[math.floor(self.animation_loop)]
-        #         self.animation_loop += 0.1
-        #         if self.animation_loop >= 3:
-        #             self.animation_loop = 1
         
         if self.facing == "left":
             if self.x_change == 0:
@@ -118,6 +95,7 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         self.movement()
         self.animate()
+        self.collide_enemy()
            
         self.rect.x += self.x_change
         self.collide_blocks('x')
@@ -161,6 +139,13 @@ class Player(pygame.sprite.Sprite):
                 self.jump_count -= 1
             else:
                 self.y_change=PLAYER_FALL_SPEED+1
+                
+    def collide_enemy(self):
+        hits = pygame.sprite.spritecollide(self,self.game.enemies,False)
+        if hits:
+            # self.get_damage(32)
+            self.kill()
+            self.game.playing = False
     
     def collide_blocks(self, direction):
         flag_lift = False

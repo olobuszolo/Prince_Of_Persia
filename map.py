@@ -182,7 +182,7 @@ class Spikes(pygame.sprite.Sprite):
         
         self.rect.y = self.y + pulsation
 
-        collisions = pygame.sprite.spritecollide(self, self.game.all_sprites, False)
+        collisions = pygame.sprite.spritecollide(self, self.game.players, False)
         for object in collisions:
             if object != self:
                 if not isinstance(object, Block):

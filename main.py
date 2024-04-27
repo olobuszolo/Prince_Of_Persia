@@ -2,6 +2,7 @@ import pygame
 from config import *
 from map import *
 from player import *
+from enemy import *
 import sys
 import os
 
@@ -17,6 +18,8 @@ class Game:
         
         # wczytanie animacji
         self.character_spritesheet = Spritesheet('resources/images/player_images/character.png')
+        self.enemy_spritesheet = Spritesheet('resources/images/player_images/enemy.png')
+        self.attack_spritesheet = Spritesheet('resources/images/player_images/attack.png')
         # self.go_background = pygame.image.load('resources/images/game_over.png')
         
         self.current_level_index = 0
@@ -50,6 +53,8 @@ class Game:
                     DownPress(self, j, i)
                 if column == "Z":
                     FallingLeftBottomUp(self, j, i)
+                if column == "E":
+                    Enemy(self,j,i)
 
 
     def new(self,health_bar_size=10*TILESIZE, player_healt=PLAYER_MAX_HEALTH):
@@ -67,6 +72,9 @@ class Game:
         self.lift = pygame.sprite.LayeredUpdates()
         self.upper_press = pygame.sprite.LayeredUpdates()
         self.down_press = pygame.sprite.LayeredUpdates()
+        self.enemies = pygame.sprite.LayeredUpdates()
+        self.attack = pygame.sprite.LayeredUpdates()
+        self.players = pygame.sprite.LayeredUpdates()
 
         self.createTilemap(levels[self.current_level_index])
         
@@ -92,6 +100,15 @@ class Game:
                     self.player.get_health(32)  # szybkie zamykanie gry
                 if event.key == pygame.K_ESCAPE:
                     sys.exit()
+                if event.key == pygame.K_SPACE:
+                    channel = pygame.mixer.find_channel()
+                    sound = pygame.mixer.Sound('resources\\sounds\\sword_fight_1.wav')
+                    sound.set_volume(0.2)
+                    channel.play(sound)
+                    if self.player.facing == 'right':
+                        Attack(self,self.player.rect.x + TILESIZE,self.player.rect.y)
+                    if self.player.facing == 'left':
+                        Attack(self,self.player.rect.x - TILESIZE,self.player.rect.y)
 
 
 
@@ -130,9 +147,9 @@ os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 g = Game()
 g.new()
-# pygame.mixer.music.load('resources\\sounds\\theme.mp3')
-# pygame.mixer.music.play(-1)
-# pygame.mixer.music.set_volume(0.3)
+pygame.mixer.music.load('resources\\sounds\\theme.mp3')
+pygame.mixer.music.play(-1)
+pygame.mixer.music.set_volume(0.3)
 
 # print(g.blocks.layers(),g.all_sprites.layers())
 while g.running:
