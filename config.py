@@ -40,8 +40,8 @@ basemap = [
     'B......................................B',
     'B..............BB......................B',
     'B......................................B',
-    'B......................................B',
-    'B......................................B',
+    'B.......BBB............................B',
+    'B...SS.................................B',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
@@ -124,10 +124,10 @@ level2 = [
     'B...............BB.....................B',
     'B......B.......BB......................B',
     'B.......B....BBBB......................B',
-    'B.......B...............BBB.TTB........B',
-    'BBBBBBTTBBBBBBBBBBBBBBBBBBBBTTBBBB.....B',
-    'BBBBBBTTTTTTTTTTTTTTTTTTTTTTTTBBBBBBBBBB',
-    'BBBBBBTTTTTTTTTTTTTTTTTTTTTTTTBBBBBBBBBB',
+    'B.......B...............BBB...B........B',
+    'BBBBBBTTBBBBBBBBBBBBBBBBBBBB..BBBB.....B',
+    'BBBBBB........................BBBBBBBBBB',
+    'BBBBBB........................BBBBBBBBBB',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
 ]
 
@@ -187,6 +187,63 @@ level3 = [
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
 ]
 
-levels = [basemap, level1, level1_2, level2, level2_2, level3]
-start_position = [(1,21), (1,21), (5, 2), (1,20), (2,3), (1, 21)]
+level3_1 = [
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'B......................................B',
+    'P......................................B',
+    'P......................................B',
+    'BBBBBBBBBBBBBBB...BBBBBBBBBBBBBBBBBBBBBB',
+    'B...........B..........................B',
+    'B...........B..........................B',
+    'B...........B..........................B',
+    'B...........B..........................B',
+    'B...........B..........................B',
+    'B...........B...L......................B',
+    'B...........BBBBBBBBB..................B',
+    'B...........B..........................B',
+    'B...........BT.........................B',
+    'B.............B........................B',
+    'BBB....D......BB.......................B',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBB..........B',
+    'B......................................B',
+    'B...............................BBBBBBBB',
+    'B......................................B',
+    'B......................................B',
+    'B....D...........BBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+]
+
+level4 = [
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'B..............ZZZZ....................B',
+    'B......................................B',
+    'B......................................B',
+    'B......................................B',
+    'B.....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'B......B...............................B',
+    'BBB....B...............................B',
+    'B......B...............................B',
+    'B......B...............................B',
+    'B....BBB...............................B',
+    'B......B...............................B',
+    'B......BBBBBBBTTTTTTTBBBBBBBBBBBB......B',
+    'BBB......................B.............B',
+    'B........................B.............B',
+    'B........................B.............B',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBB.............B',
+    'B......................................B',
+    'B......................................B',
+    'B......................................B',
+    'B.....................B................B',
+    'B.......S..S.........BB...........L....B',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+]
+
+
+levels = [basemap, level1, level1_2, level2, level2_2, level3, level3_1, level4]
+start_position = [(1,21), (1,21), (25, 4), (1,20), (2,3), (1, 21), (1, 3), (2,15)]
 

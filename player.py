@@ -40,6 +40,10 @@ class Player(pygame.sprite.Sprite):
         self.enter_next_level = False
         self.enter_next_semi_level = False
         self.is_on_trap = False
+        self.is_on_lift = False
+        self.last_spike_damage_time = 0
+        self.trap_status = False
+        self.hits_upper = False
         
         self.fall_count = -1
         
@@ -159,9 +163,13 @@ class Player(pygame.sprite.Sprite):
                 self.y_change=PLAYER_FALL_SPEED+1
     
     def collide_blocks(self, direction):
+        flag_lift = False
+        flag_block = False
+        flag_down = False
         if direction == "x":
             hits = pygame.sprite.spritecollide(self, self.game.collisions, False)
             hits_protections = pygame.sprite.spritecollide(self, self.game.protections, False)
+            # hits_spikes = pygame.sprite.spritecollide(self, self.game.spikes, False)
             if hits:
                 if self.x_change > 0:
                     self.rect.x = hits[0].rect.left - self.rect.width
@@ -172,10 +180,30 @@ class Player(pygame.sprite.Sprite):
                     self.rect.x = hits_protections[0].rect.left - self.rect.width
                 if self.x_change < 0:
                     self.rect.x = hits_protections[0].rect.right
+            # if hits_spikes:
+            #     current_time = pygame.time.get_ticks()
+
+            #     # Sprawdź, czy wystarczy czasu od ostatniego zadania obrażeń
+            #     if current_time - self.last_spike_damage_time >= 5000:  # 5000 ms = 5 sekund
+            #         self.get_damage(32)
+            #         self.game.last_spike_damage_time = current_time
+            # if hits_spikes:
+            #     self.get_damage(32)
+                # if self.x_change > 0:
+                #     self.rect.x = self.rect.x - 64
+                # else:
+                #     self.rect.x = self.rect.x + 64
                     
         if direction == "y":
             hits = pygame.sprite.spritecollide(self, self.game.blocks, False)
+            hits_falling = pygame.sprite.spritecollide(self, self.game.fakes, False)
+            hits_lift = pygame.sprite.spritecollide(self, self.game.lift, False)
+            hits_down = pygame.sprite.spritecollide(self, self.game.down_press, False)
+            hits_trap = pygame.sprite.spritecollide(self, self.game.traps, False)
+            hits_upper = pygame.sprite.spritecollide(self, self.game.upper_press, False)
+
             if hits:
+                flag_block = True
                 if self.y_change > 0:
                     self.rect.y = hits[0].rect.top - self.rect.height
                     self.jump_count = PLAYER_JUMP_HEIGHT
@@ -188,7 +216,64 @@ class Player(pygame.sprite.Sprite):
                     self.rect.y = hits[0].rect.bottom
                     if self.is_jump:
                         self.jump_count = -1
-                    
+            if hits_lift:
+                flag_lift = True
+                if self.y_change > 0:
+                    self.rect.y = hits_lift[0].rect.top - self.rect.height 
+                    self.jump_count = PLAYER_JUMP_HEIGHT
+                    self.fall_count = -1
+                    if self.y_change>PLAYER_FALL_SPEED:
+                        self.get_damage(32)
+                    self.y_change=0
+                    self.is_jump = False
+                if self.y_change < 0:
+                    self.rect.y = hits_lift[0].rect.bottom 
+                    if self.is_jump:
+                        self.jump_count = -1
+
+            if hits_trap:
+                 if self.y_change < 0:
+                    self.rect.y = hits_trap[0].rect.bottom 
+                    if self.is_jump:
+                        self.jump_count = -1
+            
+            if hits_upper:
+                self.hits_upper = True
+
+
+            if hits_down:
+                flag_down = True
+                if self.y_change > 0:
+                    self.rect.y = hits_down[0].rect.top - self.rect.height 
+                    self.jump_count = PLAYER_JUMP_HEIGHT
+                    self.fall_count = -1
+                    if self.y_change>PLAYER_FALL_SPEED:
+                        self.get_damage(32)
+                    self.y_change=0
+                    self.is_jump = False
+                if self.y_change < 0:
+                    self.rect.y = hits_down[0].rect.bottom 
+                    if self.is_jump:
+                        self.jump_count = -1
+
+
+            if flag_lift and flag_block:
+                self.get_damage(32)
+                self.is_on_lift = True
+
+            if hits_upper and hits:
+                self.get_damage(32)
+                self.rect.y = self.rect.y + 64
+                if self.x_change > 0:
+                    self.rect.x = self.rect.x - 64
+                else:
+                    self.rect.x = self.rect.x + 64
+
+            if flag_down and flag_lift:
+                self.get_damage(32)
+                self.rect.x = self.rect.x - 64            
+
+
         hits = pygame.sprite.spritecollide(self, self.game.doors, False)
         hits_semi = pygame.sprite.spritecollide(self, self.game.semidoors, False)
         trap_stands = pygame.sprite.spritecollide(self, self.game.traps, False)
@@ -206,8 +291,8 @@ class Player(pygame.sprite.Sprite):
             self.enter_next_semi_level = False
             
         hits_traps = pygame.sprite.spritecollide(self, self.game.fakes, False)
-        if hits_traps:
-            self.game.map_update()
+        # if hits_traps:
+        #     self.game.map_update()
             
     def get_next_level_pred(self):
         return self.enter_next_level
