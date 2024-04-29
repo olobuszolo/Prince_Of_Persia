@@ -6,7 +6,7 @@ from icecream import ic
 from player import Spritesheet
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, game, x, y):
+    def __init__(self, game, x, y,max_travel):
         self.game = game
         self._layer = ENEMY_LAYER
         self.groups = self.game.all_sprites, self.game.enemies
@@ -24,7 +24,7 @@ class Enemy(pygame.sprite.Sprite):
         self.animation_loop = 1
         self.movement_loop = 0
         # self.max_travel = random.randint(30)
-        self.max_travel = 100
+        self.max_travel = max_travel
 
         self.image = self.game.enemy_spritesheet.get_sprite(3,2,self.width,self.height)
         self.image.set_colorkey(BLACK)
@@ -42,7 +42,7 @@ class Enemy(pygame.sprite.Sprite):
         self.animate()
         self.collide_player()
         self.rect.x += self.x_change
-        self.collide_blocks()
+        self.collide = self.collide_blocks()
         self.rect.y += self.y_change
         self.attack_player()
         self.x_change = 0
@@ -75,13 +75,15 @@ class Enemy(pygame.sprite.Sprite):
             if self.x_change > 0:
                 self.rect.x = hits[0].rect.left - self.rect.width
                 self.facing = 'left'
+                self.facing = 'l_col'
             if self.x_change < 0:
                 self.rect.x = hits[0].rect.right
                 self.facing = 'right'
+                self.facing = 'r_col'
 
     def movement(self):
         if self.facing == 'left':
-            if abs(self.rect.y-self.game.player.rect.y)<=128:
+            if abs(self.rect.y-self.game.player.rect.y)<=128 and abs(self.rect.x-self.game.player.rect.x)<=128:
                 if self.rect.x - self.game.player.rect.x > 0:
                     self.x_change -= ENEMY_SPEED
                     self.movement_loop -= 1
@@ -91,7 +93,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.x_change -= ENEMY_SPEED
                 self.movement_loop -= 1
         if self.facing == 'right':
-            if abs(self.rect.y-self.game.player.rect.y)<=128:
+            if abs(self.rect.y-self.game.player.rect.y)<=128 and abs(self.rect.x-self.game.player.rect.x)<=128:
                 if self.rect.x - self.game.player.rect.x < 0:
                     self.x_change += ENEMY_SPEED
                     self.movement_loop += 1
@@ -101,7 +103,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.x_change += ENEMY_SPEED
                 self.movement_loop += 1
         if self.facing == 'stay':
-            if abs(self.rect.y-self.game.player.rect.y)<=128:
+            if abs(self.rect.y-self.game.player.rect.y)<=128 and abs(self.rect.x-self.game.player.rect.x)<=128:
                 if self.rect.x - self.game.player.rect.x >= 8:
                     self.facing = 'left'
                 elif self.rect.x - self.game.player.rect.x <= -8:
@@ -110,6 +112,13 @@ class Enemy(pygame.sprite.Sprite):
                     self.facing = 'stay'
             else:
                 self.facing = random.choice(['left','right'])
+        if self.facing == 'l_col':
+            if abs(self.rect.y-self.game.player.rect.y)>128 or self.rect.x - self.game.player.rect.x > 0 or self.rect.x - self.game.player.rect.x < -128:
+                self.facing = 'left'
+        if self.facing == 'r_col':
+            if abs(self.rect.y-self.game.player.rect.y)>128 or self.rect.x - self.game.player.rect.x < 0 or self.rect.x - self.game.player.rect.x > 128:
+                self.facing = 'right'
+        
  
     
     def animate(self):

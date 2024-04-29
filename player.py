@@ -28,7 +28,7 @@ class Player(pygame.sprite.Sprite):
         
         self.x = x * TILESIZE
         self.y = y * TILESIZE # * 2
-        self.width = TILESIZE
+        self.width = TILESIZE - 2
         self.height = TILESIZE # * 2
         
         self.x_change = 0
@@ -140,7 +140,7 @@ class Player(pygame.sprite.Sprite):
     def collide_enemy(self):
         hits = pygame.sprite.spritecollide(self,self.game.enemies,False)
         if hits:
-            if self.y_change > 2:
+            if self.y_change > 32:
                 for enemy in hits:
                     enemy.get_damage(8)
     

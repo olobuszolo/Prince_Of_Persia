@@ -53,8 +53,8 @@ class Game:
                     DownPress(self, j, i)
                 if column == "Z":
                     FallingLeftBottomUp(self, j, i)
-                if column == "E":
-                    Enemy(self,j,i)
+                # if column == "E":
+                #     Enemy(self,j,i)
 
 
     def new(self,health_bar_size=10*TILESIZE, player_healt=PLAYER_MAX_HEALTH):
@@ -82,6 +82,10 @@ class Game:
         start_x = start_position[self.current_level_index][0]
         start_y = start_position[self.current_level_index][1]
         self.player = Player(self, start_x, start_y, player_healt, health_bar_size)
+        
+        #postawienie enemy
+        for enemy in enemy_positions[self.current_level_index]:
+            Enemy(self,enemy[0],enemy[1],enemy[2])
                 
     def events(self):
         for event in pygame.event.get():

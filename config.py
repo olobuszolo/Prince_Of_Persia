@@ -135,7 +135,7 @@ level2 = [
     'B.......B...............BBB...B........B',
     'BBBBBBTTBBBBBBBBBBBBBBBBBBBB..BBBB.....B',
     'BBBBBB........................BBBBBBBBBB',
-    'BBBBBB...................E....BBBBBBBBBB',
+    'BBBBBB........................BBBBBBBBBB',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
 ]
 
@@ -253,5 +253,6 @@ level4 = [
 
 
 levels = [basemap, level1, level1_2, level2, level2_2, level3, level3_1, level4]
-start_position = [(1,21), (1,21), (25, 4), (1,20), (2,3), (1, 21), (1, 3), (2,15)]
+start_position = [(1,21), (1,21), (1, 4), (1,20), (2,3), (1, 21), (1, 3), (2,15)]
+enemy_positions = [[],[],[],[(8,23,100)],[],[],[],[]]
 
