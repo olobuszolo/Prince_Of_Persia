@@ -28,7 +28,7 @@ class Player(pygame.sprite.Sprite):
         
         self.x = x * TILESIZE
         self.y = y * TILESIZE # * 2
-        self.width = TILESIZE - 2
+        self.width = TILESIZE
         self.height = TILESIZE # * 2
         
         self.x_change = 0
@@ -163,7 +163,7 @@ class Player(pygame.sprite.Sprite):
                     self.rect.x = hits_protections[0].rect.right
                     
         if direction == "y":
-            hits = pygame.sprite.spritecollide(self, self.game.blocks, False)
+            hits = pygame.sprite.spritecollide(self, self.game.collisions, False)
             hits_falling = pygame.sprite.spritecollide(self, self.game.fakes, False)
             hits_lift = pygame.sprite.spritecollide(self, self.game.lift, False)
             hits_down = pygame.sprite.spritecollide(self, self.game.down_press, False)

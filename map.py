@@ -3,6 +3,7 @@ from config import *
 import pygame
 import math
 import time
+from icecream import ic
 
 class Block(pygame.sprite.Sprite): #B
     def __init__(self, game, x, y):
@@ -59,7 +60,7 @@ class FallingLeft(pygame.sprite.Sprite): #falling bricks
     def __init__(self, game, x, y):
         self.game = game
         self._layer = BLOCK_LAYER
-        self.groups = self.game.all_sprites, self.game.fakes
+        self.groups = self.game.all_sprites, self.game.fakes,self.game.protections
         pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.x = x * TILESIZE
@@ -90,7 +91,7 @@ class FallingLeft(pygame.sprite.Sprite): #falling bricks
         player_y = self.game.player.rect.y
         player_x = self.game.player.rect.x
         if (player_y > self.rect.y + 2*TILESIZE) and (player_x + 2*TILESIZE> self.rect.x):
-            self.fall_speed = FALL_SPEED
+            self.fall_speed = FALL_SPEED // 2
 
     def update(self):
         self.activate()
@@ -118,12 +119,10 @@ class FallingLeft(pygame.sprite.Sprite): #falling bricks
                     self.kill()
                 self.last_change_time = current_time   
 
-        collisions = pygame.sprite.spritecollide(self, self.game.all_sprites, False)
-        for object in collisions:
-            if object != self:
-                if not isinstance(object, Block):
-                    self.game.player.get_damage(self.damage_kill)
-                    self.damage_kill = 0 
+        collisions = pygame.sprite.spritecollide(self, self.game.players, False)
+        if self.damage_kill and collisions:
+            self.game.player.get_damage(self.damage_kill)
+            self.damage_kill = 0 
 
 class FallingRight(FallingLeft):
     def __init__(self, game, x, y):
@@ -176,20 +175,17 @@ class Spikes(pygame.sprite.Sprite):
             if current_time - self.damage_time > 2000:
                 self.damage = 32
 
-        period = 1000 
+        period = 1000 * 2
         amplitude = TILESIZE / 4
         pulsation = amplitude * math.sin(2 * math.pi * current_time / period)
         
         self.rect.y = self.y + pulsation
 
         collisions = pygame.sprite.spritecollide(self, self.game.players, False)
-        for object in collisions:
-            if object != self:
-                if not isinstance(object, Block):
-                    if self.damage_time + 2000 < current_time:
-                        self.game.player.get_damage(32)
-                        self.damage = 0
-                        self.damage_time = pygame.time.get_ticks()
+        if collisions and self.damage_time + 2000 < current_time:
+            self.game.player.get_damage(32)
+            self.damage = 0
+            self.damage_time = pygame.time.get_ticks()
 
 
 class SemiDoors(pygame.sprite.Sprite):
@@ -257,13 +253,12 @@ class NewTrap(pygame.sprite.Sprite):
             self.blocked = True
             self.image = pygame.transform.scale(self.images[self.image_index], (self.width, self.height))
 
-        collisions = pygame.sprite.spritecollide(self, self.game.all_sprites, False)
-        for object in collisions:
-            if object != self: 
-                self.collision_time = pygame.time.get_ticks()
-                self.image_index = 1
-                self.image = pygame.transform.scale(self.images[self.image_index], (self.width, self.height))
-                self.game.player.trap_status = False
+        collisions = pygame.sprite.spritecollide(self, self.game.players, False)
+        if collisions:
+            self.collision_time = pygame.time.get_ticks()
+            self.image_index = 1
+            self.image = pygame.transform.scale(self.images[self.image_index], (self.width, self.height))
+            self.game.player.trap_status = False
 
 class Lift(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
