@@ -2,9 +2,7 @@ import pygame
 from config import *
 import math
 import random
-from icecream import ic
 from player import Spritesheet
-
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, game, x, y,max_travel):
         self.game = game
@@ -36,6 +34,8 @@ class Enemy(pygame.sprite.Sprite):
         
         self.do_change = False
         self.attack_ratio = 0
+        self.damage = PLAYER_DEFAULT_DAMAGE
+        self.destroy_flag = False
         
     def update(self):
         self.movement()
@@ -62,7 +62,7 @@ class Enemy(pygame.sprite.Sprite):
             if self.attack_ratio <15:
                 self.attack_ratio += 0.5
             if self.attack_ratio == 15:
-                self.attack_ratio = 0;
+                self.attack_ratio = 0
     
     def collide_player(self):
         hits = pygame.sprite.spritecollide(self, self.game.players, False)
@@ -160,6 +160,7 @@ class Enemy(pygame.sprite.Sprite):
             channel.play(sound)
             self.kill()
 
+          
 class Attack(pygame.sprite.Sprite):
     def __init__(self, game, x, y, entity):
         self.game = game
@@ -199,7 +200,7 @@ class Attack(pygame.sprite.Sprite):
             if hits and not self.recieved:
                 self.recieved = True
                 for player in hits:
-                    player.get_damage(self.game.player.attack)
+                    player.get_damage(self.game.boss.damage)
             
     def animate(self):
         direction = self.game.player.facing
@@ -231,3 +232,63 @@ class Attack(pygame.sprite.Sprite):
                 self.kill()
             
             
+class Boss(Enemy):
+    def __init__(self, game, x, y,max_travel):
+        super().__init__(game, x, y,max_travel)
+        self.current_health = ENEMY_MAX_HEALTH * 10
+
+        self.change_time = 0
+        self.activate = False
+        self.magic = 4
+
+    def random_version(self):
+        result = self.magic
+        # while result == self.magic:
+        result = random.randint(8, 39)
+        return result
+
+    def magic_changes(self):
+        curr_time = pygame.time.get_ticks()
+        if curr_time > self.change_time + 5000:
+            print(self.game.player.current_health)
+
+            self.fix_magic_sequence()
+            self.magic = self.random_version() % 4 + 1
+            self.change_time = curr_time
+            if self.magic == 1: #slower 2 times
+                self.game.player.speed *= 0.5
+            elif self.magic == 2:
+                self.game.player.attack *= 5
+            elif self.magic == 3:
+                self.rect.x = self.random_version() * TILESIZE
+            elif self.magic == 4:
+                self.game.player.current_health += 8
+   
+      
+    def activation(self):
+        if math.sqrt((self.rect.x - self.game.player.rect.x)**2 + (self.rect.y - self.game.player.rect.y)**2) * TILESIZE < 3 * TILESIZE:
+            self.activate = True
+
+    def fix_magic_sequence(self):
+        if self.magic == 0 or self.magic == 3 or self.magic == 4:
+            pass
+        elif self.magic == 1:
+            self.game.player.speed *= 2
+        elif self.magic == 2:
+            self.game.player.attack *= 2
+    
+
+    def update(self):
+        self.activation()
+        if self.activate:
+            self.magic_changes()
+        self.movement()
+        self.animate()
+        self.collide_player()
+        self.rect.x += self.x_change
+        self.collide = self.collide_blocks()
+        self.rect.y += self.y_change
+        self.attack_player()
+        self.x_change = 0
+        self.y_change = 0
+

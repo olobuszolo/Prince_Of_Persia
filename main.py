@@ -53,6 +53,8 @@ class Game:
                     DownPress(self, j, i)
                 if column == "Z":
                     FallingLeftBottomUp(self, j, i)
+                if column == "A":
+                    Gate(self, j, i)
                 # if column == "E":
                 #     Enemy(self,j,i)
 
@@ -75,6 +77,7 @@ class Game:
         self.enemies = pygame.sprite.LayeredUpdates()
         self.attack = pygame.sprite.LayeredUpdates()
         self.players = pygame.sprite.LayeredUpdates()
+        self.gate = pygame.sprite.LayeredUpdates()
 
         self.createTilemap(levels[self.current_level_index])
         
@@ -83,7 +86,12 @@ class Game:
         start_y = start_position[self.current_level_index][1]
         self.player = Player(self, start_x, start_y, player_healt, health_bar_size)
         
-        #postawienie enemy
+        #postawienie boss
+        for bosses in boss_positions[self.current_level_index]:
+            self.boss = Boss(self,bosses[0],bosses[1],bosses[2])
+
+
+        #postawnienie enemy
         for enemy in enemy_positions[self.current_level_index]:
             Enemy(self,enemy[0],enemy[1],enemy[2])
                 
@@ -102,13 +110,13 @@ class Game:
                     self.player.get_damage(32)
                 if event.key == pygame.K_o:
                     self.player.get_health(32)  # szybkie zamykanie gry
-                if event.key == pygame.K_ESCAPE:
+                if event.key == pygame.K_ESCAPE: 
                     sys.exit()
                 if event.key == pygame.K_SPACE and not self.player.is_attacking:
                     self.player.is_attacking = True
                     channel = pygame.mixer.find_channel()
                     sound = pygame.mixer.Sound('resources\\sounds\\sword_fight_1.wav')
-                    sound.set_volume(0.15)
+                    sound.set_volume(0.15)   
                     channel.play(sound)
                     if self.player.facing == 'right':
                         Attack(self,self.player.rect.x + TILESIZE,self.player.rect.y,'enemy')
@@ -116,11 +124,11 @@ class Game:
                         Attack(self,self.player.rect.x - TILESIZE,self.player.rect.y,'enemy')
 
 
-
+  
     def update(self):
         self.all_sprites.update()
 
-    def draw(self):
+    def draw(self):  
         image_as_background = pygame.image.load("resources/images/map_images/peakpx.jpg")
         scaled_background = pygame.transform.scale(image_as_background, (WIDTH, HEIGHT))
 

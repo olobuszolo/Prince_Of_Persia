@@ -1,7 +1,6 @@
 import pygame
 from config import *
 import math
-from icecream import ic
 
 class Spritesheet:
     def __init__(self, file):
@@ -64,6 +63,8 @@ class Player(pygame.sprite.Sprite):
         
         self.attack = PLAYER_DEFAULT_DAMAGE
         self.is_attacking = False
+
+        self.speed = PLAYER_SPEED
         
     def animate(self):
 
@@ -113,11 +114,11 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         
         if keys[pygame.K_LEFT]:
-            self.x_change -= PLAYER_SPEED
+            self.x_change -= self.speed
             self.facing = 'left'
             
         if keys[pygame.K_RIGHT]:
-            self.x_change += PLAYER_SPEED
+            self.x_change += self.speed
             self.facing = 'right'
             
         if not self.is_jump:
@@ -259,6 +260,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.enter_next_level = False
             self.enter_next_semi_level = False
+
             
     def get_next_level_pred(self):
         return self.enter_next_level

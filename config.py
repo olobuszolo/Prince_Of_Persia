@@ -49,7 +49,7 @@ basemap = [
     'B..............BB......................B',
     'B......................................B',
     'B.......BBB............................B',
-    'B...SS.................................B',
+    'B......................................B',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
@@ -227,8 +227,8 @@ level4 = [
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     'B..............ZZZZ....................B',
     'B......................................B',
-    'B......................................B',
-    'B......................................B',
+    'B......................................H',
+    'B......................................H',
     'B.....BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     'B......B...............................B',
     'BBB....B...............................B',
@@ -251,8 +251,36 @@ level4 = [
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
 ]
 
+level4_1 = [
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'B......................................B',
+    'B......................................B',
+    'P......................................B',
+    'P......................................B',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBB..LL.....BBBBB',
+    'B......................................B',
+    'B......................................B',
+    'B......................................B',
+    'B...................S..................B',
+    'BBBBBBBBBTTTBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'B......................................B',
+    'B......................................B',
+    'BBBBBBBBBBBBBBBBB......................B',
+    'B......................................B',
+    'B...........BBBBBBBBBBBB...............B',
+    'B......................................B',
+    'BBBBBB.................................B',
+    'B.....BBBBBBBB.........................B',
+    'B.....A............BBB...........BBB...B',
+    'B.....A................................B',
+    'B..D..A................................B',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+]
 
-levels = [basemap, level1, level1_2, level2, level2_2, level3, level3_1, level4]
-start_position = [(1,21), (1,21), (1, 4), (1,20), (2,3), (1, 21), (1, 3), (2,15)]
-enemy_positions = [[],[],[],[(8,23,100)],[],[],[],[]]
+levels = [basemap, level1, level1_2, level2, level2_2, level3, level3_1, level4, level4_1]
+start_position = [(1,21), (1,21), (1, 4), (1,20), (2,3), (1, 21), (1, 3), (2,15), (2, 16)]
+enemy_positions = [[],[],[],[(8,23,100)],[],[],[],[],[]]
+boss_positions = [[],[],[],[],[],[],[],[],[(12, 21 ,100)]]
 
