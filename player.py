@@ -133,7 +133,7 @@ class Player(pygame.sprite.Sprite):
                 Attack(self.game, self.rect.x - TILESIZE,self.rect.y,'enemy',self.attack)
             
         if not self.is_jump:
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_UP] and self.fall_count == -1:
                 self.is_jump = True
             else:
                 if self.fall_count >= -11:

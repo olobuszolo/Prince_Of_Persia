@@ -3,6 +3,7 @@ from config import *
 from map import *
 from player import *
 from enemy import *
+from items import *
 import sys
 import os
 
@@ -22,6 +23,11 @@ class Game:
         self.enemy_red_spritesheet = Spritesheet('resources/images/player_images/enemy_red.png')
         self.enemy_blue_spritesheet = Spritesheet('resources/images/player_images/enemy_blue.png')
         self.attack_spritesheet = Spritesheet('resources/images/player_images/attack.png')
+        self.red_potion_spritesheet = Spritesheet('resources/images/map_images/red_potion.png')
+        self.blue_potion_spritesheet = Spritesheet('resources/images/map_images/blue_potion.png')
+        self.green_potion_spritesheet = Spritesheet('resources/images/map_images/green_potion.png')
+        self.yellow_potion_spritesheet = Spritesheet('resources/images/map_images/yellow_potion.png')
+        self.purple_potion_spritesheet = Spritesheet('resources/images/map_images/purple_potion.png')
         # self.go_background = pygame.image.load('resources/images/game_over.png')
         
         self.current_level_index = 0
@@ -57,6 +63,16 @@ class Game:
                     FallingLeftBottomUp(self, j, i)
                 if column == "V":
                     Fakes(self,j,i)
+                if column == "1":
+                    HealthPotion(self,j,i)
+                if column == "2":
+                    Potion2(self,j,i)
+                if column == "3":
+                    Potion3(self,j,i)
+                if column == "4":
+                    Potion4(self,j,i)
+                if column == "5":
+                    Potion5(self,j,i)
 
 
     def new(self,health_bar_size=10*TILESIZE, player_healt=PLAYER_MAX_HEALTH):
@@ -77,6 +93,7 @@ class Game:
         self.enemies = pygame.sprite.LayeredUpdates()
         self.attack = pygame.sprite.LayeredUpdates()
         self.players = pygame.sprite.LayeredUpdates()
+        self.potions = pygame.sprite.LayeredUpdates()
 
         self.createTilemap(levels[self.current_level_index])
         

@@ -58,7 +58,7 @@ basemap = [
     'B..............BB......................B',
     'B......................................B',
     'B.......BBB............................B',
-    'B...SS.................................B',
+    'B...SS......12345...............1......B',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
