@@ -18,7 +18,9 @@ class Game:
         
         # wczytanie animacji
         self.character_spritesheet = Spritesheet('resources/images/player_images/character.png')
-        self.enemy_spritesheet = Spritesheet('resources/images/player_images/enemy.png')
+        self.enemy_green_spritesheet = Spritesheet('resources/images/player_images/enemy_green.png')
+        self.enemy_red_spritesheet = Spritesheet('resources/images/player_images/enemy_red.png')
+        self.enemy_blue_spritesheet = Spritesheet('resources/images/player_images/enemy_blue.png')
         self.attack_spritesheet = Spritesheet('resources/images/player_images/attack.png')
         # self.go_background = pygame.image.load('resources/images/game_over.png')
         
@@ -53,8 +55,8 @@ class Game:
                     DownPress(self, j, i)
                 if column == "Z":
                     FallingLeftBottomUp(self, j, i)
-                # if column == "E":
-                #     Enemy(self,j,i)
+                if column == "V":
+                    Fakes(self,j,i)
 
 
     def new(self,health_bar_size=10*TILESIZE, player_healt=PLAYER_MAX_HEALTH):
@@ -85,8 +87,13 @@ class Game:
         
         #postawienie enemy
         for enemy in enemy_positions[self.current_level_index]:
-            Enemy(self,enemy[0],enemy[1],enemy[2])
-                
+            if enemy[2] == 'g':
+                EnemyGreen(self,enemy[0],enemy[1],ENEMY_MAX_HEALTH, ENEMY_GREEN_SPEED, ENEMY_GREEN_DAMAGE, ENEMY_GREEN_ATTACK_RATIO)
+            elif enemy[2] == 'b':
+                EnemyBlue(self,enemy[0],enemy[1],ENEMY_MAX_HEALTH, ENEMY_BLUE_SPEED, ENEMY_BLUE_DAMAGE, ENEMY_BLUE_ATTACK_RATIO)
+            elif enemy[2] == 'r':
+                EnemyRed(self,enemy[0],enemy[1],ENEMY_MAX_HEALTH, ENEMY_RED_SPEED, ENEMY_RED_DAMAGE, ENEMY_RED_ATTACK_RATIO)
+                 
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -104,16 +111,6 @@ class Game:
                     self.player.get_health(32)  # szybkie zamykanie gry
                 if event.key == pygame.K_ESCAPE:
                     sys.exit()
-                if event.key == pygame.K_SPACE and not self.player.is_attacking:
-                    self.player.is_attacking = True
-                    channel = pygame.mixer.find_channel()
-                    sound = pygame.mixer.Sound('resources\\sounds\\sword_fight_1.wav')
-                    sound.set_volume(0.15)
-                    channel.play(sound)
-                    if self.player.facing == 'right':
-                        Attack(self,self.player.rect.x + TILESIZE,self.player.rect.y,'enemy')
-                    if self.player.facing == 'left':
-                        Attack(self,self.player.rect.x - TILESIZE,self.player.rect.y,'enemy')
 
 
 

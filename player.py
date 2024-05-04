@@ -2,6 +2,7 @@ import pygame
 from config import *
 import math
 from icecream import ic
+from enemy import Attack
 
 class Spritesheet:
     def __init__(self, file):
@@ -119,6 +120,17 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_RIGHT]:
             self.x_change += PLAYER_SPEED
             self.facing = 'right'
+        
+        if keys[pygame.K_SPACE] and not self.is_attacking:
+            self.is_attacking = True
+            channel = pygame.mixer.find_channel()
+            sound = pygame.mixer.Sound('resources\\sounds\\sword_fight_1.wav')
+            sound.set_volume(0.15)
+            channel.play(sound)
+            if self.facing == 'right':
+                Attack(self.game, self.rect.x + TILESIZE,self.rect.y,'enemy',self.attack)
+            if self.facing == 'left':
+                Attack(self.game, self.rect.x - TILESIZE,self.rect.y,'enemy',self.attack)
             
         if not self.is_jump:
             if keys[pygame.K_UP]:
@@ -149,27 +161,19 @@ class Player(pygame.sprite.Sprite):
         flag_block = False
         flag_down = False
         if direction == "x":
-            hits = pygame.sprite.spritecollide(self, self.game.collisions, False)
-            hits_protections = pygame.sprite.spritecollide(self, self.game.protections, False)
+            hits = pygame.sprite.spritecollide(self, self.game.collisions.sprites() + self.game.protections.sprites(), False)
             if hits:
                 if self.x_change > 0:
                     self.rect.x = hits[0].rect.left - self.rect.width
                 if self.x_change < 0:
                     self.rect.x = hits[0].rect.right
-            if hits_protections:
-                if self.x_change > 0:
-                    self.rect.x = hits_protections[0].rect.left - self.rect.width
-                if self.x_change < 0:
-                    self.rect.x = hits_protections[0].rect.right
                     
         if direction == "y":
             hits = pygame.sprite.spritecollide(self, self.game.collisions, False)
-            hits_falling = pygame.sprite.spritecollide(self, self.game.fakes, False)
             hits_lift = pygame.sprite.spritecollide(self, self.game.lift, False)
             hits_down = pygame.sprite.spritecollide(self, self.game.down_press, False)
             hits_trap = pygame.sprite.spritecollide(self, self.game.traps, False)
             hits_upper = pygame.sprite.spritecollide(self, self.game.upper_press, False)
-
             if hits:
                 flag_block = True
                 if self.y_change > 0:
@@ -209,8 +213,7 @@ class Player(pygame.sprite.Sprite):
             
             if hits_upper:
                 self.hits_upper = True
-
-
+                
             if hits_down:
                 flag_down = True
                 if self.y_change > 0:
