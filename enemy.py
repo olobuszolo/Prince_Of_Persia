@@ -223,7 +223,8 @@ class Attack(pygame.sprite.Sprite):
             if hits and not self.recieved:
                 self.recieved = True
                 for player in hits:
-                    player.get_damage(self.attack)
+                    if not player.damage_resistance:
+                        player.get_damage(self.attack)
             
     def animate(self):
         direction = self.game.player.facing

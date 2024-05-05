@@ -66,13 +66,13 @@ class Game:
                 if column == "1":
                     HealthPotion(self,j,i)
                 if column == "2":
-                    Potion2(self,j,i)
+                    SpeedPotion(self,j,i)
                 if column == "3":
-                    Potion3(self,j,i)
+                    JumpPotion(self,j,i)
                 if column == "4":
-                    Potion4(self,j,i)
+                    NoFallDamagePotion(self,j,i)
                 if column == "5":
-                    Potion5(self,j,i)
+                    DamageResistancePotion(self,j,i)
 
 
     def new(self,health_bar_size=10*TILESIZE, player_healt=PLAYER_MAX_HEALTH):
@@ -119,8 +119,6 @@ class Game:
 
             elif event.type == pygame.KEYDOWN:  #robocze przelaczanie mapy5
                 if event.key == pygame.K_q:
-                    self.change_level = True
-                if (event.key == pygame.K_DOWN and self.player.get_next_level_pred()):
                     self.change_level = True
                 if event.key == pygame.K_u:     # robocze dodawanie obrażeń
                     self.player.get_damage(32)
