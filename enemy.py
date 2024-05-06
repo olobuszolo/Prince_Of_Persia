@@ -71,7 +71,7 @@ class EnemyGreen(pygame.sprite.Sprite):
             if self.attack_ratio < self.attack_ratio_max:
                 self.attack_ratio += 0.5
             if self.attack_ratio == self.attack_ratio_max:
-                self.attack_ratio = 0;
+                self.attack_ratio = 0
     
     def collide_player(self):
         hits = pygame.sprite.spritecollide(self, self.game.players, False)
@@ -156,7 +156,10 @@ class EnemyGreen(pygame.sprite.Sprite):
             sound = pygame.mixer.Sound('resources\\sounds\\harm.wav')
             sound.set_volume(0.2)
             channel.play(sound)
+            # for sprite in self.game.gate.sprites():
+            #     sprite.kill()
             self.kill()
+ 
 
 
 class EnemyBlue(EnemyGreen):
@@ -258,14 +261,15 @@ class Attack(pygame.sprite.Sprite):
                 self.kill()
             
             
-class Boss(Enemy):
-    def __init__(self, game, x, y,max_travel):
-        super().__init__(game, x, y,max_travel)
-        self.current_health = ENEMY_MAX_HEALTH * 10
+class Boss(EnemyGreen):
+    def __init__(self, game, x, y,health, speed, attack, attack_ratio_max):
+        super().__init__(game, x, y,health, speed, attack, attack_ratio_max)
+        # self.current_health = ENEMY_MAX_HEALTH * 10
 
         self.change_time = 0
         self.activate = False
         self.magic = 0
+        self.arrow_time = 0
 
     def random_version(self):
         result = self.magic
@@ -276,15 +280,13 @@ class Boss(Enemy):
     def magic_changes(self):
         curr_time = pygame.time.get_ticks()
         if curr_time > self.change_time + 5000:
-            print(self.game.player.current_health)
-
             self.fix_magic_sequence()
             self.magic = self.random_version() % 4 + 1
             self.change_time = curr_time
             if self.magic == 1: #slower 2 times
                 self.game.player.speed *= 0.5
             elif self.magic == 2:
-                self.game.player.attack *= 5
+                self.game.player.attack *= 5    #change it when boss is ready
             elif self.magic == 3:
                 self.rect.x = self.random_version() * TILESIZE
             elif self.magic == 4:
@@ -303,9 +305,29 @@ class Boss(Enemy):
         elif self.magic == 2:
             self.game.player.attack *= 2
     
+    def get_damage(self,amount):
+        self.current_health -= amount
+        if self.current_health <=0:
+            channel = pygame.mixer.find_channel()
+            sound = pygame.mixer.Sound('resources\\sounds\\harm.wav')
+            sound.set_volume(0.2)
+            channel.play(sound)
+            for sprite in self.game.gate.sprites():
+                sprite.kill()
+            self.kill()
+ 
+    def cupids_arrow(self):
+        curr_time = pygame.time.get_ticks()
+        if abs(self.rect.x - self.game.player.rect.x) > 2*TILESIZE:
+            if curr_time >= self.arrow_time + 2000:
+                Arrow(self.game, self.rect.x, self.rect.y, self.facing) 
+                self.arrow_time = curr_time
+
+
 
     def update(self):
         self.activation()
+        self.cupids_arrow()
         if self.activate:
             self.magic_changes()
         self.movement()
@@ -317,4 +339,46 @@ class Boss(Enemy):
         self.attack_player()
         self.x_change = 0
         self.y_change = 0
+    
 
+class Arrow(pygame.sprite.Sprite):
+    def __init__(self, game, x, y, direction):
+        self.game = game
+        self._layer = PLAYER_LAYER
+        self.groups = self.game.all_sprites, self.game.arrows
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x
+        self.y = y
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        if direction =='right':
+            self.image = self.game.arrow_spritesheet.get_sprite(0,0,self.width+2,self.height)
+            self.x += TILESIZE
+        else:
+            self.image=pygame.transform.flip(self.game.arrow_spritesheet.get_sprite(0,0,self.width+2,self.height), True, False)
+            self.x -= TILESIZE
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+        self.direction = direction
+
+    def change_possition(self):
+        if self.direction == 'right':
+            self.rect.x += 7
+        else:
+            self.rect.x -= 7
+
+    def check_collisions(self):
+        colissions_player = pygame.sprite.spritecollide(self, self.game.players, False)
+        if colissions_player:
+            self.game.player.get_damage(16)
+            self.kill()
+        if self.rect.x >= 39*TILESIZE or self.rect.x <= 7 * TILESIZE:
+            self.kill()
+
+    def update(self):
+        self.change_possition()
+        self.check_collisions()
