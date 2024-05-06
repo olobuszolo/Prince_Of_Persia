@@ -125,8 +125,9 @@ class Player(pygame.sprite.Sprite):
     def movement(self):
         keys = pygame.key.get_pressed()
         
-        if keys[pygame.K_RETURN] and self.get_next_level_pred():
+        if keys[pygame.K_DOWN] and self.get_next_level_pred():
             self.game.change_level = True
+            
         if keys[pygame.K_LEFT]:
             self.x_change -= self.speed
             self.facing = 'left'
@@ -173,7 +174,6 @@ class Player(pygame.sprite.Sprite):
     def collide_items(self):
         hits = pygame.sprite.spritecollide(self,self.game.potions, False)
         for hit in hits:
-            Description(self.game,hit.x,hit.y)
             keys = pygame.key.get_pressed()
             if keys[pygame.K_DOWN]:
                 hit.influence()
