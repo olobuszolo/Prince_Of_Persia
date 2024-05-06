@@ -3,7 +3,6 @@ from config import *
 import pygame
 import math
 import time
-from icecream import ic
 
 class Block(pygame.sprite.Sprite): #B
     def __init__(self, game, x, y):
@@ -23,6 +22,11 @@ class Block(pygame.sprite.Sprite): #B
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
 
+class Gate(Block): #A
+    def __init__(self, game, x, y):
+        super().__init__(game, x, y)
+        self.groups = self.game.all_sprites, self.game.blocks, self.game.collisions, self.game.gate
+        pygame.sprite.Sprite.__init__(self, self.groups)
 
 class Door(pygame.sprite.Sprite): #D
     def __init__(self, game, x, y):

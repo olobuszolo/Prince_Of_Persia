@@ -1,7 +1,6 @@
 import pygame
 from config import *
 import math
-from icecream import ic
 from enemy import Attack
 from items import *
 
@@ -74,6 +73,8 @@ class Player(pygame.sprite.Sprite):
         
         self.attack = PLAYER_DEFAULT_DAMAGE
         self.is_attacking = False
+
+        self.speed = PLAYER_SPEED
         
     def animate(self):
 
@@ -306,6 +307,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.enter_next_level = False
             self.enter_next_semi_level = False
+
             
     def get_next_level_pred(self):
         return self.enter_next_level

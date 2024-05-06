@@ -102,7 +102,12 @@ class Game:
         start_y = start_position[self.current_level_index][1]
         self.player = Player(self, start_x, start_y, player_healt, health_bar_size)
         
-        #postawienie enemy
+        #postawienie boss
+        for bosses in boss_positions[self.current_level_index]:
+            self.boss = Boss(self,bosses[0],bosses[1],bosses[2])
+
+
+        #postawnienie enemy
         for enemy in enemy_positions[self.current_level_index]:
             if enemy[2] == 'g':
                 EnemyGreen(self,enemy[0],enemy[1],ENEMY_MAX_HEALTH, ENEMY_GREEN_SPEED, ENEMY_GREEN_DAMAGE, ENEMY_GREEN_ATTACK_RATIO)
@@ -124,15 +129,15 @@ class Game:
                     self.player.get_damage(32)
                 if event.key == pygame.K_o:
                     self.player.get_health(32)  # szybkie zamykanie gry
-                if event.key == pygame.K_ESCAPE:
+                if event.key == pygame.K_ESCAPE: 
                     sys.exit()
 
 
-
+  
     def update(self):
         self.all_sprites.update()
 
-    def draw(self):
+    def draw(self):  
         image_as_background = pygame.image.load("resources/images/map_images/peakpx.jpg")
         scaled_background = pygame.transform.scale(image_as_background, (WIDTH, HEIGHT))
 
