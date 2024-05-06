@@ -1,7 +1,9 @@
 import pygame
 from config import *
 import math
-import random
+from icecream import ic
+from enemy import Attack
+from items import *
 
 class Spritesheet:
     def __init__(self, file):
@@ -23,7 +25,7 @@ class Player(pygame.sprite.Sprite):
     def  __init__(self,game,x,y,health,health_bar_size):
         self.game = game
         self._layer = PLAYER_LAYER
-        self.groups = self.game.all_sprites
+        self.groups = self.game.all_sprites, self.game.players
         pygame.sprite.Sprite.__init__(self,self.groups)
         
         self.x = x * TILESIZE
@@ -36,6 +38,7 @@ class Player(pygame.sprite.Sprite):
         
         self.is_jump = False
         self.jump_count = PLAYER_JUMP_HEIGHT
+        self.speed = PLAYER_SPEED
         
         self.enter_next_level = False
         self.enter_next_semi_level = False
@@ -44,6 +47,13 @@ class Player(pygame.sprite.Sprite):
         self.last_spike_damage_time = 0
         self.trap_status = False
         self.hits_upper = False
+        
+        self.speed_potion = False
+        self.speed_potion_time = 0 
+        self.no_fall_damage = False
+        self.no_fall_damage_time = 0
+        self.damage_resistance = False
+        self.damage_resistance_time = 0
         
         self.fall_count = -1
         
@@ -62,14 +72,10 @@ class Player(pygame.sprite.Sprite):
         self.health_bar_length = 100
         self.halth_ratio = self.maximum_health / self.health_bar_length
         
+        self.attack = PLAYER_DEFAULT_DAMAGE
+        self.is_attacking = False
+        
     def animate(self):
-        # down_animations = [self.game.character_spritesheet.get_sprite(3, 2, self.width, self.height),
-        #                    self.game.character_spritesheet.get_sprite(35, 2, self.width, self.height),
-        #                    self.game.character_spritesheet.get_sprite(68, 2, self.width, self.height)]
-
-        # up_animations = [self.game.character_spritesheet.get_sprite(3, 34, self.width, self.height),
-        #                  self.game.character_spritesheet.get_sprite(35, 34, self.width, self.height),
-        #                  self.game.character_spritesheet.get_sprite(68, 34, self.width, self.height)]
 
         left_animations = [self.game.character_spritesheet.get_sprite(3, 98, self.width, self.height),
                            self.game.character_spritesheet.get_sprite(35, 98, self.width, self.height),
@@ -78,24 +84,6 @@ class Player(pygame.sprite.Sprite):
         right_animations = [self.game.character_spritesheet.get_sprite(3, 66, self.width, self.height),
                             self.game.character_spritesheet.get_sprite(35, 66, self.width, self.height),
                             self.game.character_spritesheet.get_sprite(68, 66, self.width, self.height)]
-        
-        # if self.facing == "down":
-        #     if self.y_change == 0:
-        #         self.image = self.game.character_spritesheet.get_sprite(3, 2, self.width, self.height)
-        #     else:
-        #         self.image = down_animations[math.floor(self.animation_loop)]
-        #         self.animation_loop += 0.1
-        #         if self.animation_loop >= 3:
-        #             self.animation_loop = 1
-                    
-        # if self.facing == "up":
-        #     if self.y_change == 0:
-        #         self.image = self.game.character_spritesheet.get_sprite(3, 34, self.width, self.height)
-        #     else:
-        #         self.image = up_animations[math.floor(self.animation_loop)]
-        #         self.animation_loop += 0.1
-        #         if self.animation_loop >= 3:
-        #             self.animation_loop = 1
         
         if self.facing == "left":
             if self.x_change == 0:
@@ -123,6 +111,10 @@ class Player(pygame.sprite.Sprite):
         self.collide_blocks('x')
         self.rect.y += self.y_change
         self.collide_blocks('y')
+        self.collide_enemy()
+        self.collide_items()
+        
+        self.potion_influence()
         
         self.x_change = 0
         self.y_change = 0
@@ -133,20 +125,30 @@ class Player(pygame.sprite.Sprite):
     def movement(self):
         keys = pygame.key.get_pressed()
         
+        if keys[pygame.K_DOWN] and self.get_next_level_pred():
+            self.game.change_level = True
+            
         if keys[pygame.K_LEFT]:
-            # for sprite in self.game.all_sprites:
-            #     sprite.rect.x += PLAYER_SPEED
-            self.x_change -= PLAYER_SPEED
+            self.x_change -= self.speed
             self.facing = 'left'
             
         if keys[pygame.K_RIGHT]:
-            # for sprite in self.game.all_sprites:
-            #     sprite.rect.x -= PLAYER_SPEED
-            self.x_change += PLAYER_SPEED
+            self.x_change += self.speed
             self.facing = 'right'
+        
+        if keys[pygame.K_SPACE] and not self.is_attacking:
+            self.is_attacking = True
+            channel = pygame.mixer.find_channel()
+            sound = pygame.mixer.Sound('resources\\sounds\\sword_fight_1.wav')
+            sound.set_volume(0.15)
+            channel.play(sound)
+            if self.facing == 'right':
+                Attack(self.game, self.rect.x + TILESIZE,self.rect.y,'enemy',self.attack)
+            if self.facing == 'left':
+                Attack(self.game, self.rect.x - TILESIZE,self.rect.y,'enemy',self.attack)
             
         if not self.is_jump:
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_UP] and self.fall_count == -1:
                 self.is_jump = True
             else:
                 if self.fall_count >= -11:
@@ -161,58 +163,74 @@ class Player(pygame.sprite.Sprite):
                 self.jump_count -= 1
             else:
                 self.y_change=PLAYER_FALL_SPEED+1
+                
+    def collide_enemy(self):
+        hits = pygame.sprite.spritecollide(self,self.game.enemies,False)
+        if hits:
+            if self.y_change > 32:
+                for enemy in hits:
+                    enemy.get_damage(8)
+                    
+    def collide_items(self):
+        hits = pygame.sprite.spritecollide(self,self.game.potions, False)
+        for hit in hits:
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_DOWN]:
+                hit.influence()
+    
+    def potion_influence(self):
+        if self.speed_potion:
+            if self.speed_potion_time < 20:
+                self.speed_potion_time += .1
+            else:
+                self.speed_potion = False
+                self.speed_potion_time = 0
+                self.speed = PLAYER_SPEED
+        if self.no_fall_damage:
+            if self.no_fall_damage_time < 40:
+                self.no_fall_damage_time += .1
+            else:
+                self.no_fall_damage = False
+                self.no_fall_damage_time = 0
+                
+        if self.damage_resistance:
+            if self.damage_resistance_time < 40:
+                self.damage_resistance_time += .1
+            else:
+                self.damage_resistance = False
+                self.damage_resistance_time = 0
     
     def collide_blocks(self, direction):
         flag_lift = False
         flag_block = False
         flag_down = False
         if direction == "x":
-            hits = pygame.sprite.spritecollide(self, self.game.collisions, False)
-            hits_protections = pygame.sprite.spritecollide(self, self.game.protections, False)
-            # hits_spikes = pygame.sprite.spritecollide(self, self.game.spikes, False)
+            hits = pygame.sprite.spritecollide(self, self.game.collisions.sprites() + self.game.protections.sprites(), False)
             if hits:
                 if self.x_change > 0:
                     self.rect.x = hits[0].rect.left - self.rect.width
                 if self.x_change < 0:
                     self.rect.x = hits[0].rect.right
-            if hits_protections:
-                if self.x_change > 0:
-                    self.rect.x = hits_protections[0].rect.left - self.rect.width
-                if self.x_change < 0:
-                    self.rect.x = hits_protections[0].rect.right
-            # if hits_spikes:
-            #     current_time = pygame.time.get_ticks()
-
-            #     # Sprawdź, czy wystarczy czasu od ostatniego zadania obrażeń
-            #     if current_time - self.last_spike_damage_time >= 5000:  # 5000 ms = 5 sekund
-            #         self.get_damage(32)
-            #         self.game.last_spike_damage_time = current_time
-            # if hits_spikes:
-            #     self.get_damage(32)
-                # if self.x_change > 0:
-                #     self.rect.x = self.rect.x - 64
-                # else:
-                #     self.rect.x = self.rect.x + 64
                     
         if direction == "y":
-            hits = pygame.sprite.spritecollide(self, self.game.blocks, False)
-            hits_falling = pygame.sprite.spritecollide(self, self.game.fakes, False)
+            hits = pygame.sprite.spritecollide(self, self.game.collisions, False)
             hits_lift = pygame.sprite.spritecollide(self, self.game.lift, False)
             hits_down = pygame.sprite.spritecollide(self, self.game.down_press, False)
             hits_trap = pygame.sprite.spritecollide(self, self.game.traps, False)
             hits_upper = pygame.sprite.spritecollide(self, self.game.upper_press, False)
-
             if hits:
                 flag_block = True
                 if self.y_change > 0:
                     self.rect.y = hits[0].rect.top - self.rect.height
                     self.jump_count = PLAYER_JUMP_HEIGHT
                     self.fall_count = -1
-                    if self.y_change>PLAYER_FALL_SPEED:
+                    if self.y_change>PLAYER_FALL_SPEED and not self.no_fall_damage:
                         self.get_damage(32)
                     self.y_change=0
                     self.is_jump = False
-                if self.y_change < 0:
+                if self.y_change ==-40:
+                    self.rect.y -= self.y_change
+                elif self.y_change < 0:
                     self.rect.y = hits[0].rect.bottom
                     if self.is_jump:
                         self.jump_count = -1
@@ -222,7 +240,7 @@ class Player(pygame.sprite.Sprite):
                     self.rect.y = hits_lift[0].rect.top - self.rect.height 
                     self.jump_count = PLAYER_JUMP_HEIGHT
                     self.fall_count = -1
-                    if self.y_change>PLAYER_FALL_SPEED:
+                    if self.y_change>PLAYER_FALL_SPEED and not self.no_fall_damage:
                         self.get_damage(32)
                     self.y_change=0
                     self.is_jump = False
@@ -239,15 +257,14 @@ class Player(pygame.sprite.Sprite):
             
             if hits_upper:
                 self.hits_upper = True
-
-
+                
             if hits_down:
                 flag_down = True
                 if self.y_change > 0:
                     self.rect.y = hits_down[0].rect.top - self.rect.height 
                     self.jump_count = PLAYER_JUMP_HEIGHT
                     self.fall_count = -1
-                    if self.y_change>PLAYER_FALL_SPEED:
+                    if self.y_change>PLAYER_FALL_SPEED and not self.no_fall_damage:
                         self.get_damage(32)
                     self.y_change=0
                     self.is_jump = False
@@ -290,10 +307,6 @@ class Player(pygame.sprite.Sprite):
             self.enter_next_level = False
             self.enter_next_semi_level = False
             
-        hits_traps = pygame.sprite.spritecollide(self, self.game.fakes, False)
-        # if hits_traps:
-        #     self.game.map_update()
-            
     def get_next_level_pred(self):
         return self.enter_next_level
 
@@ -305,6 +318,10 @@ class Player(pygame.sprite.Sprite):
 
     def get_damage(self,amount):
         if self.current_health > 0:
+            channel = pygame.mixer.find_channel()
+            sound = pygame.mixer.Sound('resources\\sounds\\guard-hit.wav')
+            sound.set_volume(0.2)
+            channel.play(sound)
             self.current_health -= amount
             self.health_bar.change_current_hp(-amount)
         if self.current_health <= 0:
@@ -327,32 +344,26 @@ class HealthBar(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self,self.groups)
         
         self.x = size
-        self.y = TILESIZE # * 2
+        self.y = TILESIZE
         self.width = 10 * TILESIZE
         self.height = TILESIZE//2
         
-        # self.image = pygame.Surface([self.x,self.height])
-        # self.image.fill(GREEN)
         
         border_width = 2
         self.image = pygame.Surface((self.width+2*border_width,self.height + 2* border_width))
         self.image.fill(WHITE)
-        # border_surface.fill(WHITE)
-        # border_surface.blit(self.image,(border_width,border_width))
         left_surface = pygame.Surface((self.x,self.height))
         left_surface.fill(GREEN)
         right_surface = pygame.Surface((self.width-self.x,self.height))
         right_surface.fill(BLACK)
         self.image.blit(left_surface,(2,2))
         self.image.blit(right_surface,(self.x+2,2))
-        # self.image = border_surface
         self.rect = self.image.get_rect()
         
         self.rect.x = TILESIZE // 2
         self.rect.y = HEIGHT - TILESIZE//1.5
     def change_current_hp(self,amount):
         if self.x+amount > 0 and self.x+amount<self.width:
-            # print(self.player.current_health)
             self.x+=amount
             left_surface = pygame.Surface((self.x,self.height))
             left_surface.fill(GREEN)
@@ -362,7 +373,6 @@ class HealthBar(pygame.sprite.Sprite):
             right_surface.fill(BLACK)
             self.image.blit(left_surface,(2,2))
             self.image.blit(right_surface,(self.x+2,2))
-            # self.image.blit(left_border,(self.width+2,2))
         elif self.x+amount<=0:
             self.x=self.width
             surface = pygame.Surface((self.x,self.height))

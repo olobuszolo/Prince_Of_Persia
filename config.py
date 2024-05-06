@@ -2,7 +2,6 @@ WIDTH = 1280
 HEIGHT = 800
 
 FPS = 60
-BLOCK_LAYER = 1
 TILESIZE = 32
 BLUE = (0, 0, 255)
 RED = (255,0,0)
@@ -10,14 +9,32 @@ GREEN = (0,255,0)
 WHITE = (255,255,255)
 BLACK = (0, 0, 0)
 
-FALL_SPEED = 4
+FALL_SPEED = 2
 CHANGE_INTERVAL = 400
 
-PLAYER_LAYER = 2
+BLOCK_LAYER = 1
+PLAYER_LAYER = 3
+ENEMY_LAYER = 2
+
 PLAYER_SPEED = 5
+ENEMY_GREEN_SPEED = 3
+ENEMY_BLUE_SPEED = 2
+ENEMY_RED_SPEED = 4
+
+PLAYER_DEFAULT_DAMAGE = 16
+ENEMY_GREEN_DAMAGE = 16
+ENEMY_BLUE_DAMAGE = 32
+ENEMY_RED_DAMAGE = 8
+
+ENEMY_GREEN_ATTACK_RATIO = 15
+ENEMY_BLUE_ATTACK_RATIO = 30
+ENEMY_RED_ATTACK_RATIO = 10
+
 PLAYER_FALL_SPEED = 49
 PLAYER_JUMP_HEIGHT = 10
+
 PLAYER_MAX_HEALTH = 320
+ENEMY_MAX_HEALTH = 80
 
 basemap = [
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
@@ -41,7 +58,7 @@ basemap = [
     'B..............BB......................B',
     'B......................................B',
     'B.......BBB............................B',
-    'B...SS.................................B',
+    'B...SS......12345...............1......B',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
@@ -61,7 +78,7 @@ level1 = [
     'B...............BB.....................B',
     'B......................................B',
     'B...........BB.........................B',
-    'B......................................B',
+    'B.....V....V...........................B',
     'B......BBBB............................B',
     'B......................................B',
     'B.............BB...B...................B',
@@ -91,7 +108,7 @@ level1_2 = [
     'B......................................B',
     'B..BB..................................B',
     'B......................................B',
-    'B......B...............................B',
+    'B......B.V.............V...............B',
     'B.........BBBBBBBBBBBBB................B',
     'B......................................B',
     'B......................................B',
@@ -124,7 +141,7 @@ level2 = [
     'B...............BB.....................B',
     'B......B.......BB......................B',
     'B.......B....BBBB......................B',
-    'B.......B...............BBB...B........B',
+    'B...5...B...............BBB...B........B',
     'BBBBBBTTBBBBBBBBBBBBBBBBBBBB..BBBB.....B',
     'BBBBBB........................BBBBBBBBBB',
     'BBBBBB........................BBBBBBBBBB',
@@ -245,5 +262,13 @@ level4 = [
 
 
 levels = [basemap, level1, level1_2, level2, level2_2, level3, level3_1, level4]
-start_position = [(1,21), (1,21), (25, 4), (1,20), (2,3), (1, 21), (1, 3), (2,15)]
+start_position = [(1,21), (1,21), (1, 4), (1,20), (2,3), (1, 21), (1, 3), (2,15)]
+enemy_positions = [[],
+                   [(9,13,'g')],
+                   [(11,15,'b')],
+                   [(8,23,'r')],
+                   [],
+                   [],
+                   [],
+                   []]
 
