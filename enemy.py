@@ -239,7 +239,7 @@ class Boss(Enemy):
 
         self.change_time = 0
         self.activate = False
-        self.magic = 4
+        self.magic = 0
 
     def random_version(self):
         result = self.magic
