@@ -13,8 +13,9 @@ FALL_SPEED = 2
 CHANGE_INTERVAL = 400
 
 BLOCK_LAYER = 1
-PLAYER_LAYER = 3
-ENEMY_LAYER = 2
+PLAYER_LAYER = 4
+ENEMY_LAYER = 3
+ARROW_LAYER = 2
 
 PLAYER_SPEED = 5
 ENEMY_GREEN_SPEED = 3
@@ -58,7 +59,7 @@ basemap = [
     'B..............BB......................B',
     'B......................................B',
     'B.......BBB............................B',
-    'B...SS......12345...............1......B',
+    'B...................C...........1......B',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
@@ -278,7 +279,7 @@ level4_1 = [
     'B......................................B',
     'B...........BBBBBBBBBBBB...............B',
     'B......................................B',
-    'BBBBBB.................................B',
+    'BBBBBB......1..........................B',
     'B.....BBBBBBBB.........................B',
     'B.....A............BBB...........BBB...B',
     'B.....A................................B',
@@ -300,5 +301,5 @@ enemy_positions = [[],
                    [],
                    [],
                    []]
-boss_positions = [[],[],[],[],[],[],[],[],[(12, 21 ,100)]]
+boss_positions = [[],[],[],[],[],[],[],[],[(12, 21)]]
 

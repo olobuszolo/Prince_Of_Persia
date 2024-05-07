@@ -22,12 +22,27 @@ class Block(pygame.sprite.Sprite): #B
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
 
-class Gate(Block): #A
+class Gate(pygame.sprite.Sprite): #A
+    # def __init__(self, game, x, y):
+    #     super().__init__(game, x, y)
+    #     self.groups = self.game.all_sprites, self.game.collisions, self.game.gate
+        # pygame.sprite.Sprite.__init__(self, self.groups)
     def __init__(self, game, x, y):
-        super().__init__(game, x, y)
-        self.groups = self.game.all_sprites, self.game.blocks, self.game.collisions, self.game.gate
+        self.game = game
+        self._layer = BLOCK_LAYER
+        self.groups = self.game.all_sprites, self.game.gate, self.game.collisions
         pygame.sprite.Sprite.__init__(self, self.groups)
 
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        image_brick = pygame.image.load("resources/images/map_images/newbrick.png")
+        self.image = pygame.transform.scale(image_brick, (self.width, self.height))
+
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (self.x, self.y)
 class Door(pygame.sprite.Sprite): #D
     def __init__(self, game, x, y):
         self.game = game

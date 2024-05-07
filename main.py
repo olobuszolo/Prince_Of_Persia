@@ -28,6 +28,7 @@ class Game:
         self.green_potion_spritesheet = Spritesheet('resources/images/map_images/green_potion.png')
         self.yellow_potion_spritesheet = Spritesheet('resources/images/map_images/yellow_potion.png')
         self.purple_potion_spritesheet = Spritesheet('resources/images/map_images/purple_potion.png')
+        self.arrow_spritesheet = Spritesheet('resources/images/map_images/Arrows_pack2.png')
         # self.go_background = pygame.image.load('resources/images/game_over.png')
         
         self.current_level_index = 0
@@ -56,7 +57,7 @@ class Game:
                 if column == "L":
                     Lift(self, j, i)
                 if column == "U":
-                    UpperPress(self, j, i)
+                    UpperPress(self, j, i) 
                 if column == "X":
                     DownPress(self, j, i)
                 if column == "Z":
@@ -73,6 +74,10 @@ class Game:
                     NoFallDamagePotion(self,j,i)
                 if column == "5":
                     DamageResistancePotion(self,j,i)
+                if column == "A":
+                    Gate(self, j, i)
+                if column == "C":
+                    Arrow(self, j, i, 'left')
 
 
     def new(self,health_bar_size=10*TILESIZE, player_healt=PLAYER_MAX_HEALTH):
@@ -94,7 +99,10 @@ class Game:
         self.attack = pygame.sprite.LayeredUpdates()
         self.players = pygame.sprite.LayeredUpdates()
         self.potions = pygame.sprite.LayeredUpdates()
+        self.gate = pygame.sprite.LayeredUpdates()
+        self.arrows = pygame.sprite.LayeredUpdates()
 
+ 
         self.createTilemap(levels[self.current_level_index])
         
         #postawienie gracza
@@ -104,12 +112,12 @@ class Game:
         
         #postawienie boss
         for bosses in boss_positions[self.current_level_index]:
-            self.boss = Boss(self,bosses[0],bosses[1],bosses[2])
+            self.boss = Boss(self,bosses[0],bosses[1], ENEMY_MAX_HEALTH  , ENEMY_RED_SPEED, ENEMY_GREEN_DAMAGE, ENEMY_GREEN_ATTACK_RATIO)
 
 
         #postawnienie enemy
         for enemy in enemy_positions[self.current_level_index]:
-            if enemy[2] == 'g':
+            if enemy[2] == 'g': 
                 EnemyGreen(self,enemy[0],enemy[1],ENEMY_MAX_HEALTH, ENEMY_GREEN_SPEED, ENEMY_GREEN_DAMAGE, ENEMY_GREEN_ATTACK_RATIO)
             elif enemy[2] == 'b':
                 EnemyBlue(self,enemy[0],enemy[1],ENEMY_MAX_HEALTH, ENEMY_BLUE_SPEED, ENEMY_BLUE_DAMAGE, ENEMY_BLUE_ATTACK_RATIO)
@@ -171,7 +179,7 @@ g = Game()
 g.new()
 pygame.mixer.music.load('resources\\sounds\\theme.mp3')
 pygame.mixer.music.play(-1)
-pygame.mixer.music.set_volume(0.3)
+pygame.mixer.music.set_volume(0.0)
 
 # print(g.blocks.layers(),g.all_sprites.layers())
 while g.running:

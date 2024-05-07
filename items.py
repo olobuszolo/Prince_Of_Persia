@@ -1,7 +1,6 @@
 import pygame
 from config import *
 import math
-from icecream import ic
 from random import choice
 
 class HealthPotion(pygame.sprite.Sprite): #1
