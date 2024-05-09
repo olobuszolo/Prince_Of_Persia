@@ -29,6 +29,7 @@ class Game:
         self.yellow_potion_spritesheet = Spritesheet('resources/images/map_images/yellow_potion.png')
         self.purple_potion_spritesheet = Spritesheet('resources/images/map_images/purple_potion.png')
         self.arrow_spritesheet = Spritesheet('resources/images/map_images/Arrows_pack2.png')
+        self.boss_spritesheet = Spritesheet('resources/images/player_images/boss1.png')
         # self.go_background = pygame.image.load('resources/images/game_over.png')
         
         self.current_level_index = 0
@@ -76,8 +77,6 @@ class Game:
                     DamageResistancePotion(self,j,i)
                 if column == "A":
                     Gate(self, j, i)
-                if column == "C":
-                    Arrow(self, j, i, 'left')
 
 
     def new(self,health_bar_size=10*TILESIZE, player_healt=PLAYER_MAX_HEALTH):
@@ -112,7 +111,7 @@ class Game:
         
         #postawienie boss
         for bosses in boss_positions[self.current_level_index]:
-            self.boss = Boss(self,bosses[0],bosses[1], ENEMY_MAX_HEALTH  , ENEMY_RED_SPEED, ENEMY_GREEN_DAMAGE, ENEMY_GREEN_ATTACK_RATIO)
+            self.boss = Boss(self,bosses[0],bosses[1], ENEMY_MAX_HEALTH *8 , ENEMY_RED_SPEED, ENEMY_GREEN_DAMAGE, ENEMY_GREEN_ATTACK_RATIO)
 
 
         #postawnienie enemy

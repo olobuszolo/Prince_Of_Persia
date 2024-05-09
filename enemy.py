@@ -262,18 +262,37 @@ class Attack(pygame.sprite.Sprite):
             
             
 class Boss(EnemyGreen):
-    def __init__(self, game, x, y,health, speed, attack, attack_ratio_max):
-        super().__init__(game, x, y,health, speed, attack, attack_ratio_max)
-        # self.current_health = ENEMY_MAX_HEALTH * 10
+    def __init__(self, game, x, y, health, speed, attack, attack_ratio_max):
+        super().__init__(game, x, y, health, speed, attack, attack_ratio_max)
+
+        self.width = TILESIZE - 4
+        self.height = 2 * TILESIZE
+
+        self.rect = pygame.Rect(x * TILESIZE, (y + 1) * TILESIZE - self.height, self.width, self.height)
+
+        self.left_animations = [
+            pygame.transform.flip(self.game.boss_spritesheet.get_sprite(0, 7, self.width, self.height), True, False),
+            pygame.transform.flip(self.game.boss_spritesheet.get_sprite(36, 7, self.width, self.height), True, False),
+            pygame.transform.flip(self.game.boss_spritesheet.get_sprite(64, 7, self.width, self.height), True, False)
+        ]
+
+        self.right_animations = [
+            self.game.boss_spritesheet.get_sprite(0, 7, self.width, self.height),
+            self.game.boss_spritesheet.get_sprite(36, 7, self.width, self.height),
+            self.game.boss_spritesheet.get_sprite(64, 7, self.width, self.height)
+        ]
+
+        self.image = self.game.boss_spritesheet.get_sprite(194, 7, self.width, self.height)
+        self.image.set_colorkey(BLACK)
 
         self.change_time = 0
         self.activate = False
         self.magic = 0
         self.arrow_time = 0
 
+
     def random_version(self):
         result = self.magic
-        # while result == self.magic:
         result = random.randint(8, 39)
         return result
 
@@ -308,6 +327,7 @@ class Boss(EnemyGreen):
     def get_damage(self,amount):
         self.current_health -= amount
         if self.current_health <=0:
+            self.fix_magic_sequence()
             channel = pygame.mixer.find_channel()
             sound = pygame.mixer.Sound('resources\\sounds\\harm.wav')
             sound.set_volume(0.2)
@@ -320,7 +340,7 @@ class Boss(EnemyGreen):
         curr_time = pygame.time.get_ticks()
         if abs(self.rect.x - self.game.player.rect.x) > 2*TILESIZE:
             if curr_time >= self.arrow_time + 2000:
-                Arrow(self.game, self.rect.x, self.rect.y, self.facing) 
+                Arrow(self.game, self.rect.x, self.rect.y + 32, self.facing) 
                 self.arrow_time = curr_time
 
 
@@ -376,7 +396,7 @@ class Arrow(pygame.sprite.Sprite):
         if colissions_player:
             self.game.player.get_damage(16)
             self.kill()
-        if self.rect.x >= 39*TILESIZE or self.rect.x <= 7 * TILESIZE:
+        if self.rect.x >= 38*TILESIZE or self.rect.x <= 7 * TILESIZE:
             self.kill()
 
     def update(self):
