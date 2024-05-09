@@ -305,7 +305,7 @@ class Boss(EnemyGreen):
             if self.magic == 1: #slower 2 times
                 self.game.player.speed *= 0.5
             elif self.magic == 2:
-                self.game.player.attack *= 5    #change it when boss is ready
+                self.game.player.attack *= 0.5    #change it when boss is ready
             elif self.magic == 3:
                 self.rect.x = self.random_version() * TILESIZE
             elif self.magic == 4:

@@ -4,7 +4,6 @@ import math
 import random
 from enemy import Attack
 from items import *
-from icecream import ic
 
 class Spritesheet:
     def __init__(self, file):
