@@ -30,6 +30,7 @@ class Game:
         self.purple_potion_spritesheet = Spritesheet('resources/images/map_images/purple_potion.png')
         self.arrow_spritesheet = Spritesheet('resources/images/map_images/Arrows_pack2.png')
         self.boss_spritesheet = Spritesheet('resources/images/player_images/boss1.png')
+        self.swords_spritesheet = Spritesheet('resources/images/map_images/swords.png')
         # self.go_background = pygame.image.load('resources/images/game_over.png')
         
         self.current_level_index = 0
@@ -79,7 +80,7 @@ class Game:
                     Gate(self, j, i)
 
 
-    def new(self,health_bar_size=10*TILESIZE, player_healt=PLAYER_MAX_HEALTH):
+    def new(self,health_bar_size=10*TILESIZE, player_healt=PLAYER_MAX_HEALTH,sword_type=0):
         self.playing = True
         
         self.all_sprites = pygame.sprite.LayeredUpdates()
@@ -100,6 +101,7 @@ class Game:
         self.potions = pygame.sprite.LayeredUpdates()
         self.gate = pygame.sprite.LayeredUpdates()
         self.arrows = pygame.sprite.LayeredUpdates()
+        self.swords = pygame.sprite.LayeredUpdates()
 
  
         self.createTilemap(levels[self.current_level_index])
@@ -107,7 +109,7 @@ class Game:
         #postawienie gracza
         start_x = start_position[self.current_level_index][0]
         start_y = start_position[self.current_level_index][1]
-        self.player = Player(self, start_x, start_y, player_healt, health_bar_size)
+        self.player = Player(self, start_x, start_y, player_healt, health_bar_size,sword_type)
         
         #postawienie boss
         for bosses in boss_positions[self.current_level_index]:
@@ -122,6 +124,9 @@ class Game:
                 EnemyBlue(self,enemy[0],enemy[1],ENEMY_MAX_HEALTH, ENEMY_BLUE_SPEED, ENEMY_BLUE_DAMAGE, ENEMY_BLUE_ATTACK_RATIO)
             elif enemy[2] == 'r':
                 EnemyRed(self,enemy[0],enemy[1],ENEMY_MAX_HEALTH, ENEMY_RED_SPEED, ENEMY_RED_DAMAGE, ENEMY_RED_ATTACK_RATIO)
+        
+        for sword in swords_positions[self.current_level_index]:
+            Sword(self,sword[0],sword[1],sword[2])
                  
     def events(self):
         for event in pygame.event.get():
@@ -163,7 +168,7 @@ class Game:
                 pass
             if self.change_level:
                 self.current_level_index = (self.current_level_index + 1) % len(levels)
-                self.new(player_healt=self.player.current_health,health_bar_size=self.player.health_bar.x)
+                self.new(player_healt=self.player.current_health,health_bar_size=self.player.health_bar.x,sword_type=self.player)
                 self.change_level = False
 
         self.running = False
@@ -178,7 +183,7 @@ g = Game()
 g.new()
 pygame.mixer.music.load('resources\\sounds\\theme.mp3')
 pygame.mixer.music.play(-1)
-pygame.mixer.music.set_volume(0.0)
+pygame.mixer.music.set_volume(0.3)
 
 # print(g.blocks.layers(),g.all_sprites.layers())
 while g.running:

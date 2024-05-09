@@ -1,8 +1,10 @@
 import pygame
 from config import *
 import math
+import random
 from enemy import Attack
 from items import *
+from icecream import ic
 
 class Spritesheet:
     def __init__(self, file):
@@ -21,7 +23,7 @@ use down to enter next level.
 '''
 
 class Player(pygame.sprite.Sprite):
-    def  __init__(self,game,x,y,health,health_bar_size):
+    def  __init__(self,game,x,y,health,health_bar_size,sword_type):
         self.game = game
         self._layer = PLAYER_LAYER
         self.groups = self.game.all_sprites, self.game.players
@@ -71,10 +73,22 @@ class Player(pygame.sprite.Sprite):
         self.health_bar_length = 100
         self.halth_ratio = self.maximum_health / self.health_bar_length
         
-        self.attack = PLAYER_DEFAULT_DAMAGE
+        self.damage = PLAYER_DEFAULT_DAMAGE
         self.is_attacking = False
 
         self.speed = PLAYER_SPEED
+        
+        self.sword_type = sword_type
+        if sword_type == 1:
+            self.damage = PLAYER_DEFAULT_DAMAGE * 1.25
+        elif sword_type == 2:
+            self.damage = PLAYER_DEFAULT_DAMAGE * 1.5
+        elif sword_type == 3:
+            self.damage = PLAYER_DEFAULT_DAMAGE * 1.75
+        elif sword_type == 4:
+            self.damage = PLAYER_DEFAULT_DAMAGE * 2
+        elif sword_type == 5:
+            self.damage = PLAYER_DEFAULT_DAMAGE * 3
         
     def animate(self):
 
@@ -143,10 +157,7 @@ class Player(pygame.sprite.Sprite):
             sound = pygame.mixer.Sound('resources\\sounds\\sword_fight_1.wav')
             sound.set_volume(0.15)
             channel.play(sound)
-            if self.facing == 'right':
-                Attack(self.game, self.rect.x + TILESIZE,self.rect.y,'enemy',self.attack)
-            if self.facing == 'left':
-                Attack(self.game, self.rect.x - TILESIZE,self.rect.y,'enemy',self.attack)
+            self.attack()
             
         if not self.is_jump:
             if keys[pygame.K_UP] and self.fall_count == -1:
@@ -173,7 +184,7 @@ class Player(pygame.sprite.Sprite):
                     enemy.get_damage(8)
                     
     def collide_items(self):
-        hits = pygame.sprite.spritecollide(self,self.game.potions, False)
+        hits = pygame.sprite.spritecollide(self,self.game.potions.sprites() + self.game.swords.sprites(), False)
         for hit in hits:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_DOWN]:
@@ -339,6 +350,41 @@ class Player(pygame.sprite.Sprite):
             self.health_bar.change_current_hp(amount)
         if self.current_health >= self.maximum_health:
             self.current_health = self.maximum_health
+            
+    def attack(self):
+        
+        if self.facing == 'right':
+            Attack(self.game, self.rect.x + TILESIZE,self.rect.y,'enemy',self.damage)
+            if self.sword_type == 2 and random.random()<0.5:
+                Attack(self.game, self.rect.x + 2*TILESIZE,self.rect.y,'enemy',self.damage)
+                
+        if self.facing == 'left':
+            Attack(self.game, self.rect.x - TILESIZE,self.rect.y,'enemy',self.damage)
+            if self.sword_type == 2 and random.random()<0.5:
+                Attack(self.game, self.rect.x - 2*TILESIZE,self.rect.y,'enemy',self.damage)
+                
+        if self.sword_type == 1 and random.random()<0.15:
+                self.get_damage(8)
+                
+        if self.sword_type == 3 and random.random()<0.1 and self.height/self.maximum_health < 0.2:
+            self.get_health(8)
+            
+        if self.sword_type == 4 and random.random()<0.1 and self.height/self.maximum_health < 0.2:
+            potion_type = random.choice(['1','2','3','4','5'])
+            if potion_type == '1':
+                HealthPotion(self.game,self.rect.x//32,self.rect.y//32)
+            elif potion_type == '2':
+                SpeedPotion(self.game,self.rect.x//32,self.rect.y//32)
+            elif potion_type == '3':
+                JumpPotion(self.game,self.rect.x//32,self.rect.y//32)
+            elif potion_type == '4':
+                NoFallDamagePotion(self.game,self.rect.x//32,self.rect.y//32)
+            elif potion_type == '5':
+                DamageResistancePotion(self.game,self.rect.x//32,self.rect.y//32)
+                
+        if self.sword_type == 5 and random.random()<0.05:
+            for enemy in self.game.enemies:
+                enemy.kill()
         
 
 class HealthBar(pygame.sprite.Sprite):

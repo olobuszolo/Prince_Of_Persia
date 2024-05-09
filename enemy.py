@@ -53,11 +53,11 @@ class EnemyGreen(pygame.sprite.Sprite):
         self.rect.x += self.x_change
         self.collide = self.collide_blocks()
         self.rect.y += self.y_change
-        self.attack_player()
+        self.attack_player(0)
         self.x_change = 0
         self.y_change = 0
     
-    def attack_player(self):
+    def attack_player(self,y):
         if abs(self.rect.y - self.game.player.rect.y) <= 64:
             if abs(self.rect.x - self.game.player.rect.x) <= 64 and self.attack_ratio == 0:
                 channel = pygame.mixer.find_channel()
@@ -65,9 +65,9 @@ class EnemyGreen(pygame.sprite.Sprite):
                 sound.set_volume(0.15)
                 channel.play(sound)
                 if self.facing == 'right':
-                    Attack(self.game,self.rect.x + TILESIZE,self.rect.y,'player',self.attack)
+                    Attack(self.game,self.rect.x + TILESIZE,self.rect.y + y*TILESIZE,'player',self.attack)
                 if self.facing == 'left':
-                    Attack(self.game,self.rect.x - TILESIZE,self.rect.y,'player',self.attack)
+                    Attack(self.game,self.rect.x - TILESIZE,self.rect.y + y*TILESIZE,'player',self.attack)
             if self.attack_ratio < self.attack_ratio_max:
                 self.attack_ratio += 0.5
             if self.attack_ratio == self.attack_ratio_max:
@@ -356,7 +356,7 @@ class Boss(EnemyGreen):
         self.rect.x += self.x_change
         self.collide = self.collide_blocks()
         self.rect.y += self.y_change
-        self.attack_player()
+        self.attack_player(1)
         self.x_change = 0
         self.y_change = 0
     
