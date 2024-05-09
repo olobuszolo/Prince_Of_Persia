@@ -365,10 +365,10 @@ class Player(pygame.sprite.Sprite):
         if self.sword_type == 1 and random.random()<0.15:
                 self.get_damage(8)
                 
-        if self.sword_type == 3 and random.random()<0.1 and self.height/self.maximum_health < 0.2:
+        if self.sword_type == 3 and random.random()<0.1 and self.current_health/self.maximum_health < 0.2:
             self.get_health(8)
             
-        if self.sword_type == 4 and random.random()<0.1 and self.height/self.maximum_health < 0.2:
+        if self.sword_type == 4 and random.random()<0.1 and self.current_health/self.maximum_health < 0.2:
             potion_type = random.choice(['1','2','3','4','5'])
             if potion_type == '1':
                 HealthPotion(self.game,self.rect.x//32,self.rect.y//32)
