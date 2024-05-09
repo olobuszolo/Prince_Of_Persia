@@ -289,7 +289,11 @@ class Player(pygame.sprite.Sprite):
 
             if flag_down and flag_lift:
                 self.get_damage(32)
-                self.rect.x = self.rect.x - 64            
+                if self.x_change > 0:
+                    self.rect.x += 96
+                else:
+                    self.rect.x -= 96
+                self.rect.y += 32         
 
 
         hits = pygame.sprite.spritecollide(self, self.game.doors, False)
@@ -308,7 +312,7 @@ class Player(pygame.sprite.Sprite):
             self.enter_next_level = False
             self.enter_next_semi_level = False
 
-            
+
     def get_next_level_pred(self):
         return self.enter_next_level
 

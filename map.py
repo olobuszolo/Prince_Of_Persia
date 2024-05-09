@@ -23,10 +23,6 @@ class Block(pygame.sprite.Sprite): #B
         self.rect.topleft = (self.x, self.y)
 
 class Gate(pygame.sprite.Sprite): #A
-    # def __init__(self, game, x, y):
-    #     super().__init__(game, x, y)
-    #     self.groups = self.game.all_sprites, self.game.collisions, self.game.gate
-        # pygame.sprite.Sprite.__init__(self, self.groups)
     def __init__(self, game, x, y):
         self.game = game
         self._layer = BLOCK_LAYER
@@ -330,7 +326,7 @@ class UpperPress(Lift):
         self.groups = self.game.all_sprites, self.game.upper_press
         pygame.sprite.Sprite.__init__(self, self.groups)
 
-        self.start_y = self.y = y * TILESIZE + 15
+        self.start_y = self.y = y * TILESIZE - 15
         self.fall_speed = - FALL_SPEED * 0.5
 
 
@@ -358,19 +354,20 @@ class UpperPress(Lift):
                 self.fall_speed = - self.fall_speed
 
 
+
 class DownPress(pygame.sprite.Sprite):  #X
     def __init__(self, game, x, y):
         self.game = game
-        self._layer = BLOCK_LAYER + 1
+        self._layer = BLOCK_LAYER
         self.groups = self.game.all_sprites, self.game.down_press
         pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.x = x * TILESIZE
-        self.y = y * TILESIZE + 15
+        self.y = y * TILESIZE 
         self.width = TILESIZE
-        self.height = 0.5 * TILESIZE
+        self.height = TILESIZE//2
 
-        self.start_y = y * TILESIZE + 15
+        self.start_y = y * TILESIZE - 15
 
         lift_image = pygame.image.load("resources/images/map_images/fake.png")
         self.image = pygame.transform.scale(lift_image, (self.width, self.height))
@@ -380,7 +377,7 @@ class DownPress(pygame.sprite.Sprite):  #X
 
         self.collided = False
         self.next_image_time = pygame.time.get_ticks()
-        self.fall_speed = FALL_SPEED * 0.5
+        self.fall_speed = FALL_SPEED 
 
     def update(self):
         if not self.collided:
@@ -401,6 +398,7 @@ class DownPress(pygame.sprite.Sprite):  #X
             self.fall_speed = -self.fall_speed
             self.rect.y -= self.fall_speed 
             
+
 class Fakes(pygame.sprite.Sprite): #V
     def __init__(self, game, x, y):
         self.game = game
