@@ -35,6 +35,9 @@ class Game:
         
         self.current_level_index = 0
         self.change_level = False
+
+        self.start_time = 10 * 60 * 1000 
+        self.time_left = self.start_time
         
         
     def createTilemap(self, level):
@@ -127,6 +130,7 @@ class Game:
         
         for sword in swords_positions[self.current_level_index]:
             Sword(self,sword[0],sword[1],sword[2])
+
                  
     def events(self):
         for event in pygame.event.get():
@@ -134,7 +138,7 @@ class Game:
                 self.playing = False
                 self.running = False
 
-            elif event.type == pygame.KEYDOWN:  #robocze przelaczanie mapy5
+            elif event.type == pygame.KEYDOWN:  #robocze przelaczanie mapy
                 if event.key == pygame.K_q:
                     self.change_level = True
                 if event.key == pygame.K_u:     # robocze dodawanie obrażeń
@@ -144,18 +148,38 @@ class Game:
                 if event.key == pygame.K_ESCAPE: 
                     sys.exit()
 
-
+    def clock_update(self):
+        self.time_left -= self.clock.get_time()
+        if self.time_left <= 0:
+            self.time_left = 0
+            self.playing = False 
   
     def update(self):
         self.all_sprites.update()
+        self.clock_update()
 
     def draw(self):  
+        if self.current_level_index in new_levels_index:
+            level_image = pygame.image.load("resources/images/menu/poziom1.png")
+            scaled_background = pygame.transform.scale(level_image, (WIDTH, HEIGHT))
+            time.sleep(2)
+            
         image_as_background = pygame.image.load("resources/images/map_images/peakpx.jpg")
+        # image_as_background = pygame.image.load("resources\images\menu\poziom1.png")
         scaled_background = pygame.transform.scale(image_as_background, (WIDTH, HEIGHT))
 
         self.screen.blit(scaled_background, (0,0))
         self.all_sprites.draw(self.screen)
+
+        minutes = self.time_left // 60000
+        seconds = (self.time_left % 60000) // 1000
+        time_text = f"{minutes:02}:{seconds:02}"
+        font = pygame.font.Font(None, 74)
+        text = font.render(time_text, True, (255, 255, 255))
+        self.screen.blit(text, (WIDTH // 2 - text.get_width() // 2, 10))
+        
         self.clock.tick(FPS)
+
         pygame.display.update()
 
     def main(self):
@@ -163,9 +187,9 @@ class Game:
             self.events()
             self.update()
             self.draw()
-            if self.player.current_health==0:
-                # self.playing = False
-                pass
+            if self.player.current_health == 0:
+                self.playing = False
+                # pass
             if self.change_level:
                 self.current_level_index = (self.current_level_index + 1) % len(levels)
                 self.new(player_healt=self.player.current_health,health_bar_size=self.player.health_bar.x,sword_type=self.player)
@@ -177,19 +201,3 @@ class Game:
         pass
         #TODO
         
-os.chdir(os.path.dirname(os.path.realpath(__file__)))
-
-g = Game()
-g.new()
-pygame.mixer.music.load('resources\\sounds\\theme.mp3')
-pygame.mixer.music.play(-1)
-pygame.mixer.music.set_volume(0.3)
-
-# print(g.blocks.layers(),g.all_sprites.layers())
-while g.running:
-    g.main()
-    g.game_over()
-
-# pygame.mixer.music.stop()
-pygame.quit()
-sys.exit()
