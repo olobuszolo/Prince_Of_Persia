@@ -292,9 +292,9 @@ level4_1 = [
 ]
 
 
-levels = [basemap, level1, level1_2, level2, level2_2, level3, level3_1, level4, level4_1]
-start_position = [(1,21), (1,21), (1, 4), (1,20), (2,3), (1, 21), (1, 3), (2,15), (2,16)]
-enemy_positions = [[],
+levels = [level1, level1_2, level2, level2_2, level3, level3_1, level4, level4_1]
+start_position = [(1,21), (1, 4), (1,20), (2,3), (1, 21), (1, 3), (2,15), (2,16)]
+enemy_positions = [
                    [(9,13,'g')],
                    [(11,15,'b')],
                    [(8,23,'r')],
@@ -303,5 +303,5 @@ enemy_positions = [[],
                    [],
                    [],
                    []]
-boss_positions = [[],[],[],[],[],[],[],[],[(12, 21)]]
-swords_positions = [[],[],[],[(8,10,1),(9,10,2),(10,10,3),(11,10,4),(12,10,5)],[],[],[],[],[]]
+boss_positions = [[],[],[],[],[],[],[],[(12, 21)]]
+swords_positions = [[],[],[(8,10,1),(9,10,2),(10,10,3),(11,10,4),(12,10,5)],[],[],[],[],[]]
