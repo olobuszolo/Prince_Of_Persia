@@ -76,7 +76,7 @@ class Menu:
     def render(self):
         if self.showing_instructions:
             self.screen.blit(self.instructions_background, (0, 0))
-            pygame.draw.rect(self.screen, (0, 0, 0), self.back_rect)  # Draw the back button
+            pygame.draw.rect(self.screen, (0, 0, 0), self.back_rect) 
             font = pygame.font.Font(None, 36)
             text = font.render("Back", True, (255, 255, 255))
             self.screen.blit(text, (self.back_rect.x + 10, self.back_rect.y + 10))

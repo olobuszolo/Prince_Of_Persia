@@ -48,7 +48,7 @@ class Game:
         self.special_image_start_time = pygame.time.get_ticks()
         self.game_over_flag = False
 
-        self.start_time = 10 * 60 * 1000 
+        self.start_time = 0.5 * 60 * 1000 
         self.time_left = self.start_time
 
         # Load and play background music
@@ -163,7 +163,6 @@ class Game:
         self.time_left -= self.clock.get_time()
         if self.time_left <= 0:
             self.time_left = 0
-            self.playing = False 
   
     def update(self):
         if not self.show_special_image_flag and not self.game_over_flag:
@@ -187,10 +186,20 @@ class Game:
             time_text = f"{minutes:02}:{seconds:02}"
             font = pygame.font.Font(None, 74)
             text = font.render(time_text, True, (255, 255, 255))
-            self.screen.blit(text, (WIDTH // 2 - text.get_width() // 2, 10))
+            
+            text_width, text_height = text.get_size()
+            rect_width = text_width + 20  
+            rect_height = text_height + 10
+            rect_x = WIDTH // 2 - rect_width // 2
+            rect_y = 10
+
+            pygame.draw.rect(self.screen, (0, 0, 0), (rect_x, rect_y, rect_width, rect_height))
+
+            self.screen.blit(text, (rect_x + 10, rect_y + 5))
         
         self.clock.tick(FPS)
         pygame.display.update()
+
 
     def main(self):
         while self.playing:
@@ -210,7 +219,7 @@ class Game:
                     self.draw()
                     continue
 
-            if self.player.current_health == 0 and not self.game_over_flag:
+            if (self.player.current_health == 0 and not self.game_over_flag) or self.time_left <= 0:
                 self.game_over_flag = True
                 self.special_image_start_time = pygame.time.get_ticks()
                 self.current_special_image_index = 4
