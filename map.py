@@ -22,6 +22,38 @@ class Block(pygame.sprite.Sprite): #B
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
 
+
+class MovingBlock(Block):
+    def __init__(self, game, x, y):
+        super().__init__(game, x, y)
+        self.height = 4 * TILESIZE
+        self.width = 2 * TILESIZE
+        image_brick = pygame.image.load("resources/images/map_images/press.png")
+        self.image = pygame.transform.scale(image_brick, (self.width, self.height))
+        self.killing_y = self.y + TILESIZE + 1
+        
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (self.x, self.y)
+        
+        self.direction = 1  
+        self.movement_distance = 0
+        self.max_distance = 4 * TILESIZE
+        self.fall_speed = FALL_SPEED
+
+    def update(self):
+        self.y += self.direction * self.fall_speed
+        self.rect.y = self.y
+        self.movement_distance += abs(self.direction * self.fall_speed)
+
+        player_collision = pygame.sprite.spritecollide(self, self.game.players, False)
+        if player_collision:
+            if self.y in (self.killing_y-1, self.killing_y + 1):
+                self.game.player.press_flag = True
+
+        if self.movement_distance >= self.max_distance:
+            self.direction *= -1  
+            self.movement_distance = 0
+
 class Gate(pygame.sprite.Sprite): #A
     def __init__(self, game, x, y):
         self.game = game
@@ -320,83 +352,83 @@ class Lift(pygame.sprite.Sprite):
                 self.game.player.is_on_lift = False
         
 
-class UpperPress(Lift):
-    def __init__(self, game, x, y):
-        super().__init__(game, x, y)
-        self.groups = self.game.all_sprites, self.game.upper_press
-        pygame.sprite.Sprite.__init__(self, self.groups)
+# class UpperPress(Lift):
+#     def __init__(self, game, x, y):
+#         super().__init__(game, x, y)
+#         self.groups = self.game.all_sprites, self.game.upper_press
+#         pygame.sprite.Sprite.__init__(self, self.groups)
 
-        self.start_y = self.y = y * TILESIZE - 15
-        self.fall_speed = - FALL_SPEED * 0.5
-
-
-    def update(self):
-        if not self.collided:
-            self.rect.y -= self.fall_speed
-
-        collisions = pygame.sprite.spritecollide(self, self.game.blocks, False)
-
-        lift_collision = pygame.sprite.spritecollide(self, self.game.down_press, False)
-
-        for sprite in collisions:
-            if sprite != self:
-                self.collided = True
-                break
-        if self.collided:
-            self.fall_speed = -self.fall_speed 
-            self.rect.y = self.rect.y 
-            self.collided = False
-        if self.rect.y == self.start_y:
-            self.fall_speed = - self.fall_speed
-
-        for sprite in lift_collision:
-            if sprite != self:
-                self.fall_speed = - self.fall_speed
+#         self.start_y = self.y = y * TILESIZE - 15
+#         self.fall_speed = - FALL_SPEED * 0.5
 
 
+#     def update(self):
+#         if not self.collided:
+#             self.rect.y -= self.fall_speed
 
-class DownPress(pygame.sprite.Sprite):  #X
-    def __init__(self, game, x, y):
-        self.game = game
-        self._layer = BLOCK_LAYER
-        self.groups = self.game.all_sprites, self.game.down_press
-        pygame.sprite.Sprite.__init__(self, self.groups)
+#         collisions = pygame.sprite.spritecollide(self, self.game.blocks, False)
 
-        self.x = x * TILESIZE
-        self.y = y * TILESIZE 
-        self.width = TILESIZE
-        self.height = TILESIZE//2
+#         lift_collision = pygame.sprite.spritecollide(self, self.game.down_press, False)
 
-        self.start_y = y * TILESIZE - 15
+#         for sprite in collisions:
+#             if sprite != self:
+#                 self.collided = True
+#                 break
+#         if self.collided:
+#             self.fall_speed = -self.fall_speed 
+#             self.rect.y = self.rect.y 
+#             self.collided = False
+#         if self.rect.y == self.start_y:
+#             self.fall_speed = - self.fall_speed
 
-        lift_image = pygame.image.load("resources/images/map_images/fake.png")
-        self.image = pygame.transform.scale(lift_image, (self.width, self.height))
+#         for sprite in lift_collision:
+#             if sprite != self:
+#                 self.fall_speed = - self.fall_speed
 
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (self.x, self.y)
 
-        self.collided = False
-        self.next_image_time = pygame.time.get_ticks()
-        self.fall_speed = FALL_SPEED 
 
-    def update(self):
-        if not self.collided:
-            self.rect.y -= self.fall_speed
+# class DownPress(pygame.sprite.Sprite):  #X
+#     def __init__(self, game, x, y):
+#         self.game = game
+#         self._layer = BLOCK_LAYER
+#         self.groups = self.game.all_sprites, self.game.down_press
+#         pygame.sprite.Sprite.__init__(self, self.groups)
 
-        collisions = pygame.sprite.spritecollide(self, self.game.upper_press, False)
+#         self.x = x * TILESIZE
+#         self.y = y * TILESIZE 
+#         self.width = TILESIZE
+#         self.height = TILESIZE//2
 
-        for sprite in collisions:
-            if sprite != self:
-                self.collided = True
-                break
-        if self.collided:
-            self.fall_speed = -self.fall_speed
-            self.rect.y -= self.fall_speed 
+#         self.start_y = y * TILESIZE - 15
 
-            self.collided = False
-        if self.rect.y >= self.start_y + 32:
-            self.fall_speed = -self.fall_speed
-            self.rect.y -= self.fall_speed 
+#         lift_image = pygame.image.load("resources/images/map_images/fake.png")
+#         self.image = pygame.transform.scale(lift_image, (self.width, self.height))
+
+#         self.rect = self.image.get_rect()
+#         self.rect.topleft = (self.x, self.y)
+
+#         self.collided = False
+#         self.next_image_time = pygame.time.get_ticks()
+#         self.fall_speed = FALL_SPEED 
+
+#     def update(self):
+#         if not self.collided:
+#             self.rect.y -= self.fall_speed
+
+#         collisions = pygame.sprite.spritecollide(self, self.game.upper_press, False)
+
+#         for sprite in collisions:
+#             if sprite != self:
+#                 self.collided = True
+#                 break
+#         if self.collided:
+#             self.fall_speed = -self.fall_speed
+#             self.rect.y -= self.fall_speed 
+
+#             self.collided = False
+#         if self.rect.y >= self.start_y + 32:
+#             self.fall_speed = -self.fall_speed
+#             self.rect.y -= self.fall_speed 
             
 
 class Fakes(pygame.sprite.Sprite): #V
