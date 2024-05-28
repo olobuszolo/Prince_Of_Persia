@@ -48,7 +48,7 @@ class Game:
         self.special_image_start_time = pygame.time.get_ticks()
         self.game_over_flag = False
 
-        self.start_time = 0.5 * 60 * 1000 
+        self.start_time = 10 * 60 * 1000 
         self.time_left = self.start_time
 
         # Load and play background music
@@ -77,10 +77,10 @@ class Game:
                     NewTrap(self, j, i)
                 if column == "L":
                     Lift(self, j, i)
-                if column == "U":
-                    UpperPress(self, j, i) 
-                if column == "X":
-                    DownPress(self, j, i)
+                # if column == "U":
+                #     UpperPress(self, j, i) 
+                # if column == "X":
+                #     DownPress(self, j, i)
                 if column == "Z":
                     FallingLeftBottomUp(self, j, i)
                 if column == "V":
@@ -97,6 +97,9 @@ class Game:
                     DamageResistancePotion(self,j,i)
                 if column == "A":
                     Gate(self, j, i)
+                if column == "C":
+                    MovingBlock(self, j, i)
+
 
     def new(self, health_bar_size=10*TILESIZE, player_healt=PLAYER_MAX_HEALTH, sword_type=0):
         self.playing = True

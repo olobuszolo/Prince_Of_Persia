@@ -7,19 +7,16 @@ import os
 class Menu:
     def __init__(self):
         pygame.init()
-        pygame.mixer.init()  # Initialize the mixer for playing sounds
+        pygame.mixer.init()  
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.clock = pygame.time.Clock()
         
-        # Load menu background
         background_image = pygame.image.load("resources/images/menu/start_menu.png")
         self.background = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
         
-        # Load instructions background
         self.instructions_image = pygame.image.load("resources/images/menu/instructions.png")
         self.instructions_background = pygame.transform.scale(self.instructions_image, (WIDTH, HEIGHT))
         
-        # Define rectangles for buttons
         self.game_rect = pygame.Rect(518, 51, 152, 67)
         self.instructions_rect = pygame.Rect(400, 120, 500, 74)
         self.results_rect = pygame.Rect(430, 220, 447, 72)
@@ -31,11 +28,14 @@ class Menu:
 
         self.menu_music = 'resources/sounds/Artur-Andrus-Cyniczne-córy-Zurychu (1) (mp3cut.net).mp3'
 
-    def run(self):
+    def play_menu_music(self):
         if not pygame.mixer.music.get_busy():
             pygame.mixer.music.load(self.menu_music)
             pygame.mixer.music.play(-1)
             pygame.mixer.music.set_volume(0.3)
+
+    def run(self):
+        self.play_menu_music()
 
         while self.running:
             for event in pygame.event.get():
@@ -72,6 +72,7 @@ class Menu:
         
         self.running = True
         self.in_menu = True
+        self.play_menu_music()
 
     def render(self):
         if self.showing_instructions:

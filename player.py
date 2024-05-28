@@ -47,6 +47,7 @@ class Player(pygame.sprite.Sprite):
         self.last_spike_damage_time = 0
         self.trap_status = False
         self.hits_upper = False
+        self.press_flag = False
         
         self.speed_potion = False
         self.speed_potion_time = 0 
@@ -135,6 +136,13 @@ class Player(pygame.sprite.Sprite):
 
         if self.get_next_semi_level_pred():
             self.game.change_level = True
+
+        if self.press_flag:
+            self.get_damage(32)
+            self.rect.x -= 3*TILESIZE
+            self.rect.y += 0.5 * TILESIZE
+            self.press_flag = False
+
         
     def movement(self):
         keys = pygame.key.get_pressed()
@@ -215,6 +223,7 @@ class Player(pygame.sprite.Sprite):
         flag_lift = False
         flag_block = False
         flag_down = False
+
         if direction == "x":
             hits = pygame.sprite.spritecollide(self, self.game.collisions.sprites() + self.game.protections.sprites(), False)
             if hits:
@@ -245,6 +254,8 @@ class Player(pygame.sprite.Sprite):
                     self.rect.y = hits[0].rect.bottom
                     if self.is_jump:
                         self.jump_count = -1
+  
+
             if hits_lift:
                 flag_lift = True
                 if self.y_change > 0:
