@@ -3,32 +3,23 @@ from config import *
 import math
 from random import choice
 
-class HealthPotion(pygame.sprite.Sprite): #1
+"""
+All potions refractored but influance in Player to change and placing in game to change.
+"""
+class AbstractPotion(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
         self._layer = BLOCK_LAYER
         self.groups = self.game.all_sprites, self.game.potions
         pygame.sprite.Sprite.__init__(self, self.groups)
-
+        
         self.x = x * TILESIZE
         self.y = y * TILESIZE
         self.width = TILESIZE//2
         self.height = TILESIZE//2
+        
         self.animation_loop = 0
-        self.animations = [self.game.red_potion_spritesheet.get_sprite(0,0,self.width,self.height),
-                            self.game.red_potion_spritesheet.get_sprite(16,0,self.width,self.height),
-                            self.game.red_potion_spritesheet.get_sprite(32,0,self.width,self.height),
-                            self.game.red_potion_spritesheet.get_sprite(0,16,self.width,self.height),
-                            self.game.red_potion_spritesheet.get_sprite(16,16,self.width,self.height),
-                            self.game.red_potion_spritesheet.get_sprite(32,16,self.width,self.height),
-                            self.game.red_potion_spritesheet.get_sprite(0,32,self.width,self.height),
-                            self.game.red_potion_spritesheet.get_sprite(16,32,self.width,self.height)]
-
-        self.image = self.game.red_potion_spritesheet.get_sprite(0,0,self.width,self.height)
-        self.image.set_colorkey(BLACK)
-        self.rect = self.image.get_rect()
-        self.rect.x = self.x
-        self.rect.y = self.y+10
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
         
     def update(self):
         self.animate()
@@ -37,94 +28,77 @@ class HealthPotion(pygame.sprite.Sprite): #1
         self.image = self.animations[math.floor(self.animation_loop)]
         self.image = pygame.transform.scale(self.image, (22, 22))
         self.animation_loop += 0.2
-        if self.animation_loop >= 8:
+        if self.animation_loop >= 6:
             self.animation_loop = 1
     
-    def play_music(self):
-        channel = pygame.mixer.find_channel()
-        sound = pygame.mixer.Sound('resources\\sounds\\potion.wav')
-        sound.set_volume(0.3)
-        pygame.mixer.music.pause()
-        channel.play(sound)
-        pygame.mixer.music.unpause()
+    def influence(self):
+        play_sound('resources\\sounds\\potion.wav', 0.3)
+
+class HealthPotion(AbstractPotion):
+    def __init__(self, game, x, y):
+        super().__init__(game,x,y)
+        self.animations = self.game.red_potion_spritesheet.get_sprites(0, 0, self.width, self.height, 3, 2)
+        self.image = self.animations[0]
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y+10
     
     def influence(self):
-        self.play_music()
+        super().influence()
         self.game.player.get_health(choice([8,16,32,64]))
         self.kill()
     
-class SpeedPotion(HealthPotion): #2
+class SpeedPotion(AbstractPotion):
     def __init__(self, game, x, y):
         super().__init__(game, x, y)
-        self.animations = [self.game.blue_potion_spritesheet.get_sprite(0,0,self.width,self.height),
-                            self.game.blue_potion_spritesheet.get_sprite(16,0,self.width,self.height),
-                            self.game.blue_potion_spritesheet.get_sprite(32,0,self.width,self.height),
-                            self.game.blue_potion_spritesheet.get_sprite(0,16,self.width,self.height),
-                            self.game.blue_potion_spritesheet.get_sprite(16,16,self.width,self.height),
-                            self.game.blue_potion_spritesheet.get_sprite(32,16,self.width,self.height),
-                            self.game.blue_potion_spritesheet.get_sprite(0,32,self.width,self.height),
-                            self.game.blue_potion_spritesheet.get_sprite(16,32,self.width,self.height)]
-
-        self.image = self.game.blue_potion_spritesheet.get_sprite(0,0,self.width,self.height)
+        self.animations = self.game.blue_potion_spritesheet.get_sprites(0, 0, self.width, self.height, 3, 2)
+        self.image = self.animations[0]
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y+10
         
     def influence(self):
-        super().play_music()
+        super().influence()
         self.game.player.speed *= 2
         self.game.player.speed_potion = True
         self.kill()
-        
-class JumpPotion(HealthPotion): #3 TODO
+
+class NoFallDamagePotion(AbstractPotion):
     def __init__(self, game, x, y):
         super().__init__(game, x, y)
-        self.animations = [self.game.green_potion_spritesheet.get_sprite(0,0,self.width,self.height),
-                            self.game.green_potion_spritesheet.get_sprite(16,0,self.width,self.height),
-                            self.game.green_potion_spritesheet.get_sprite(32,0,self.width,self.height),
-                            self.game.green_potion_spritesheet.get_sprite(0,16,self.width,self.height),
-                            self.game.green_potion_spritesheet.get_sprite(16,16,self.width,self.height),
-                            self.game.green_potion_spritesheet.get_sprite(32,16,self.width,self.height),
-                            self.game.green_potion_spritesheet.get_sprite(0,32,self.width,self.height),
-                            self.game.green_potion_spritesheet.get_sprite(16,32,self.width,self.height)]
-
-        self.image = self.game.green_potion_spritesheet.get_sprite(0,0,self.width,self.height)
-
-class NoFallDamagePotion(HealthPotion): #4
-    def __init__(self, game, x, y):
-        super().__init__(game, x, y)
-        self.animations = [self.game.yellow_potion_spritesheet.get_sprite(0,0,self.width,self.height),
-                            self.game.yellow_potion_spritesheet.get_sprite(16,0,self.width,self.height),
-                            self.game.yellow_potion_spritesheet.get_sprite(32,0,self.width,self.height),
-                            self.game.yellow_potion_spritesheet.get_sprite(0,16,self.width,self.height),
-                            self.game.yellow_potion_spritesheet.get_sprite(16,16,self.width,self.height),
-                            self.game.yellow_potion_spritesheet.get_sprite(32,16,self.width,self.height),
-                            self.game.yellow_potion_spritesheet.get_sprite(0,32,self.width,self.height),
-                            self.game.yellow_potion_spritesheet.get_sprite(16,32,self.width,self.height)]
-
-        self.image = self.game.yellow_potion_spritesheet.get_sprite(0,0,self.width,self.height)
+        self.animations = self.game.yellow_potion_spritesheet.get_sprites(0, 0, self.width, self.height, 3, 2)
+        self.image = self.animations[0]
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y+10
         
     def influence(self):
-        super().play_music()
+        super().influence()
         self.game.player.no_fall_damage = True
         self.kill()
 
-class DamageResistancePotion(HealthPotion): #5
+class DamageResistancePotion(AbstractPotion):
     def __init__(self, game, x, y):
         super().__init__(game, x, y)
-        self.animations = [self.game.purple_potion_spritesheet.get_sprite(0,0,self.width,self.height),
-                            self.game.purple_potion_spritesheet.get_sprite(16,0,self.width,self.height),
-                            self.game.purple_potion_spritesheet.get_sprite(32,0,self.width,self.height),
-                            self.game.purple_potion_spritesheet.get_sprite(0,16,self.width,self.height),
-                            self.game.purple_potion_spritesheet.get_sprite(16,16,self.width,self.height),
-                            self.game.purple_potion_spritesheet.get_sprite(32,16,self.width,self.height),
-                            self.game.purple_potion_spritesheet.get_sprite(0,32,self.width,self.height),
-                            self.game.purple_potion_spritesheet.get_sprite(16,32,self.width,self.height)]
-
-        self.image = self.game.purple_potion_spritesheet.get_sprite(0,0,self.width,self.height)
+        self.animations = self.game.purple_potion_spritesheet.get_sprites(0, 0, self.width, self.height, 3, 2)
+        self.image = self.animations[0]
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y+10
         
     def influence(self):
-        super().play_music()
+        super().influence()
         self.game.player.damage_resistance = True
         self.kill()
-        
+
+
+"""
+To change sword. Make 2 different class of swords, one for eq one for map.
+"""        
 class Sword(pygame.sprite.Sprite):
     def __init__(self, game, x, y, typ):
         self.game = game
@@ -167,6 +141,9 @@ class Sword(pygame.sprite.Sprite):
         self.game.player.damage = self.attack
         self.kill()
 
+"""
+Delete Description or use somewhere else.
+"""
 class Description(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game

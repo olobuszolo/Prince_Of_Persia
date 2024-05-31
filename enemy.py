@@ -3,9 +3,11 @@ from config import *
 import math
 import random
 
-
-class EnemyGreen(pygame.sprite.Sprite):
-    def __init__(self, game, x, y, health, speed, attack, attack_ratio_max):
+"""
+Enemys and Attack refractored.
+"""
+class AbstractEnemy(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
         self.game = game
         self._layer = ENEMY_LAYER
         self.groups = self.game.all_sprites, self.game.enemies
@@ -17,34 +19,13 @@ class EnemyGreen(pygame.sprite.Sprite):
         self.height = TILESIZE
         
         self.x_change = 0
-        self.y_change = 0
         
-        self.facing = random.choice(['left','right'])
-        self.speed = speed
+        self.facing = 'right'
         self.animation_loop = 1
         self.movement_loop = 0
-
-        self.image = self.game.enemy_green_spritesheet.get_sprite(3,2,self.width,self.height)
-        self.image.set_colorkey(BLACK)
-        self.rect = self.image.get_rect()
-        self.rect.x = self.x
-        self.rect.y = self.y
-        
-        self.current_health = health
-        self.attack = attack
         
         self.do_change = False
         self.attack_ratio = 0
-
-        self.attack_ratio_max = attack_ratio_max
-        
-        self.left_animations = [self.game.enemy_green_spritesheet.get_sprite(3, 98, self.width, self.height),
-                                self.game.enemy_green_spritesheet.get_sprite(35, 98, self.width, self.height),
-                                self.game.enemy_green_spritesheet.get_sprite(68, 98, self.width, self.height)]
-
-        self.right_animations = [self.game.enemy_green_spritesheet.get_sprite(3, 66, self.width, self.height),
-                                self.game.enemy_green_spritesheet.get_sprite(35, 66, self.width, self.height),
-                                 self.game.enemy_green_spritesheet.get_sprite(68, 66, self.width, self.height)]
         
     def update(self):
         self.movement()
@@ -52,26 +33,22 @@ class EnemyGreen(pygame.sprite.Sprite):
         self.collide_player()
         self.rect.x += self.x_change
         self.collide = self.collide_blocks()
-        self.rect.y += self.y_change
         self.attack_player(0)
         self.x_change = 0
-        self.y_change = 0
     
-    def attack_player(self,y):
-        if abs(self.rect.y - self.game.player.rect.y) <= 64:
-            if abs(self.rect.x - self.game.player.rect.x) <= 64 and self.attack_ratio == 0:
-                channel = pygame.mixer.find_channel()
-                sound = pygame.mixer.Sound('resources\\sounds\\sword_fight_1.wav')
-                sound.set_volume(0.15)
-                channel.play(sound)
-                if self.facing == 'right':
-                    Attack(self.game,self.rect.x + TILESIZE,self.rect.y + y*TILESIZE,'player',self.attack)
-                if self.facing == 'left':
-                    Attack(self.game,self.rect.x - TILESIZE,self.rect.y + y*TILESIZE,'player',self.attack)
-            if self.attack_ratio < self.attack_ratio_max:
-                self.attack_ratio += 0.5
-            if self.attack_ratio == self.attack_ratio_max:
-                self.attack_ratio = 0
+    def attack_player(self, y):
+        player_distance_y = abs(self.rect.y - self.game.player.rect.y)
+        player_distance_x = abs(self.rect.x - self.game.player.rect.x)
+
+        if player_distance_y <= 64 and player_distance_x <= 64 and self.attack_ratio == 0:
+            attack_x = self.rect.x + TILESIZE if self.facing == 'right' else self.rect.x - TILESIZE
+            Attack(self.game, attack_x, self.rect.y + y * TILESIZE, 'player', self.attack, self.facing)
+        
+        if self.attack_ratio < self.attack_ratio_max:
+            self.attack_ratio += 0.5
+        
+        if self.attack_ratio >= self.attack_ratio_max:
+            self.attack_ratio = 0
     
     def collide_player(self):
         hits = pygame.sprite.spritecollide(self, self.game.players, False)
@@ -81,215 +58,195 @@ class EnemyGreen(pygame.sprite.Sprite):
     def collide_blocks(self):
         hits = pygame.sprite.spritecollide(self, self.game.collisions.sprites() + self.game.fakes.sprites(), False)
         if hits:
-            if self.x_change > 0:
-                self.rect.x = hits[0].rect.left - self.rect.width
-                self.facing = 'l_col'
-                self.x_change = 0
-            if self.x_change < 0:
-                self.rect.x = hits[0].rect.right
-                self.facing = 'r_col'
+            hit = hits[0]
+            if self.x_change != 0:
+                if self.x_change > 0:
+                    self.rect.x = hit.rect.left - self.rect.width
+                    self.facing = 'l_col'
+                else:
+                    self.rect.x = hit.rect.right
+                    self.facing = 'r_col'
                 self.x_change = 0
 
-    def movement(self):
-        if self.facing == 'left':
-            if abs(self.rect.y-self.game.player.rect.y)<=128 and abs(self.rect.x-self.game.player.rect.x)<=128:
-                if self.rect.x - self.game.player.rect.x > 0:
-                    self.x_change -= self.speed
-                    self.movement_loop -= 1
-                else:
-                    self.facing = 'stay'
-            else:
-                self.x_change -= self.speed
-                self.movement_loop -= 1
-                
-        if self.facing == 'right':
-            if abs(self.rect.y-self.game.player.rect.y)<=128 and abs(self.rect.x-self.game.player.rect.x)<=128:
-                if self.rect.x - self.game.player.rect.x < 0:
-                    self.x_change += self.speed
-                    self.movement_loop += 1
-                else:
-                    self.facing = 'stay'
-            else:
-                self.x_change += self.speed
-                self.movement_loop += 1
-                
-        if self.facing == 'stay':
-            if abs(self.rect.y-self.game.player.rect.y)<=128 and abs(self.rect.x-self.game.player.rect.x)<=128:
-                if self.rect.x - self.game.player.rect.x >= 8:
-                    self.facing = 'left'
-                elif self.rect.x - self.game.player.rect.x <= -8:
-                    self.facing = 'right'
-                else:
-                    self.facing = 'stay'
-            else:
-                self.facing = random.choice(['left','right'])
-                
-        if self.facing == 'l_col':
-            if abs(self.rect.y-self.game.player.rect.y)>128 or self.rect.x - self.game.player.rect.x > 0 or self.rect.x - self.game.player.rect.x < -128:
-                self.facing = 'left'
-        if self.facing == 'r_col':
-            if abs(self.rect.y-self.game.player.rect.y)>128 or self.rect.x - self.game.player.rect.x < 0 or self.rect.x - self.game.player.rect.x > 128:
-                self.facing = 'right'
-                
     def animate(self):
-        if self.facing == "left":
-            if self.x_change == 0:
-                self.image = self.left_animations[0]
+        animations = self.left_animations if self.facing == "left" else self.right_animations
+        if self.x_change == 0:
+            self.image = animations[0]
+        else:
+            self.image = animations[math.floor(self.animation_loop)]
+            self.animation_loop += 0.1
+            if self.animation_loop >= 3:
+                self.animation_loop = 1
+                
+    def movement(self):
+        player_distance_x = self.rect.x - self.game.player.rect.x
+        player_distance_y = abs(self.rect.y - self.game.player.rect.y)
+
+        if self.facing in ['left', 'right']:
+            if player_distance_y <= 128 and abs(player_distance_x) <= 128:
+                if (self.facing == 'left' and player_distance_x > 0) or (self.facing == 'right' and player_distance_x < 0):
+                    self.x_change += self.speed if self.facing == 'right' else -self.speed
+                    self.movement_loop += 1 if self.facing == 'right' else -1
+                else:
+                    self.facing = 'stay'
             else:
-                self.image = self.left_animations[math.floor(self.animation_loop)]
-                self.animation_loop += 0.1
-                if self.animation_loop >= 3:
-                    self.animation_loop = 1
-        if self.facing == "right":
-            if self.x_change == 0:
-                self.image = self.right_animations[0]
+                self.x_change += self.speed if self.facing == 'right' else -self.speed
+                self.movement_loop += 1 if self.facing == 'right' else -1
+
+        if self.facing == 'stay':
+            if player_distance_y <= 128:
+                if player_distance_x >= 8:
+                    self.facing = 'left'
+                elif player_distance_x <= -8:
+                    self.facing = 'right'
             else:
-                self.image = self.right_animations[math.floor(self.animation_loop)]
-                self.animation_loop += 0.1
-                if self.animation_loop >= 3:
-                    self.animation_loop = 1
-        
+                self.facing = random.choice(['left', 'right'])
+
+        if self.facing == 'l_col' and (player_distance_y > 128 or player_distance_x > 0 or player_distance_x < -128):
+            self.facing = 'left'
+        if self.facing == 'r_col' and (player_distance_y > 128 or player_distance_x < 0 or player_distance_x > 128):
+            self.facing = 'right'
+    
     def get_damage(self,amount):
         self.current_health -= amount
         if self.current_health <=0:
-            channel = pygame.mixer.find_channel()
-            sound = pygame.mixer.Sound('resources\\sounds\\harm.wav')
-            sound.set_volume(0.2)
-            channel.play(sound)
-            # for sprite in self.game.gate.sprites():
-            #     sprite.kill()
+            play_sound('resources\\sounds\\harm.wav',0.2)
             self.kill()
- 
 
-
-class EnemyBlue(EnemyGreen):
-    def __init__(self, game, x, y, health, speed, attack, attack_ratio_max):
-        super().__init__(game, x, y, health, speed, attack, attack_ratio_max)
-        self.left_animations = [self.game.enemy_blue_spritesheet.get_sprite(3, 98, self.width, self.height),
-                                self.game.enemy_blue_spritesheet.get_sprite(35, 98, self.width, self.height),
-                                self.game.enemy_blue_spritesheet.get_sprite(68, 98, self.width, self.height)]
-
-        self.right_animations = [self.game.enemy_blue_spritesheet.get_sprite(3, 66, self.width, self.height),
-                                self.game.enemy_blue_spritesheet.get_sprite(35, 66, self.width, self.height),
-                                self.game.enemy_blue_spritesheet.get_sprite(68, 66, self.width, self.height)]
-        self.image = self.game.enemy_blue_spritesheet.get_sprite(3,2,self.width,self.height)
+class EnemyGreen(AbstractEnemy):
+    def __init__(self, game, x, y):
+        super().__init__(game,x,y)
+        
+        self.speed = ENEMY_GREEN_SPEED
+        self.current_health = ENEMY_MAX_HEALTH
+        self.attack = ENEMY_GREEN_DAMAGE
+        self.attack_ratio_max = ENEMY_GREEN_ATTACK_RATIO
+        
+        self.left_animations = self.game.enemy_green_spritesheet.get_sprites(3, 98, self.width, self.height, 1, 3)
+        self.right_animations = self.game.enemy_green_spritesheet.get_sprites(3, 66, self.width, self.height, 1, 3)
+        
+        self.image = self.right_animations[0]
         self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+ 
+class EnemyBlue(AbstractEnemy):
+    def __init__(self, game, x, y):
+        super().__init__(game,x,y)
+        
+        self.speed = ENEMY_BLUE_SPEED
+        self.current_health = ENEMY_MAX_HEALTH
+        self.attack = ENEMY_BLUE_DAMAGE
+        self.attack_ratio_max = ENEMY_BLUE_ATTACK_RATIO
+        
+        self.left_animations = self.game.enemy_blue_spritesheet.get_sprites(3, 98, self.width, self.height, 1, 3)
+        self.right_animations = self.game.enemy_blue_spritesheet.get_sprites(3, 66, self.width, self.height, 1, 3)
+        
+        self.image = self.right_animations[0]
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
 
 class EnemyRed(EnemyGreen):
-    def __init__(self, game, x, y, health, speed, attack, attack_ratio_max):
-        super().__init__(game, x, y, health, speed, attack, attack_ratio_max)
-        self.left_animations = [self.game.enemy_red_spritesheet.get_sprite(3, 98, self.width, self.height),
-                                self.game.enemy_red_spritesheet.get_sprite(35, 98, self.width, self.height),
-                                self.game.enemy_red_spritesheet.get_sprite(68, 98, self.width, self.height)]
-
-        self.right_animations = [self.game.enemy_red_spritesheet.get_sprite(3, 66, self.width, self.height),
-                                self.game.enemy_red_spritesheet.get_sprite(35, 66, self.width, self.height),
-                                self.game.enemy_red_spritesheet.get_sprite(68, 66, self.width, self.height)]
-        self.image = self.game.enemy_red_spritesheet.get_sprite(3,2,self.width,self.height)
+    def __init__(self, game, x, y):
+        super().__init__(game,x,y)
+        
+        self.speed = ENEMY_RED_SPEED
+        self.current_health = ENEMY_MAX_HEALTH
+        self.attack = ENEMY_RED_DAMAGE
+        self.attack_ratio_max = ENEMY_RED_ATTACK_RATIO
+        
+        self.left_animations = self.game.enemy_red_spritesheet.get_sprites(3, 98, self.width, self.height, 1, 3)
+        self.right_animations = self.game.enemy_red_spritesheet.get_sprites(3, 66, self.width, self.height, 1, 3)
+        
+        self.image = self.right_animations[0]
         self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
 
 class Attack(pygame.sprite.Sprite):
-    def __init__(self, game, x, y, entity, attack):
+    def __init__(self, game, x, y, entity, attack, direction):
         self.game = game
         self._layer = PLAYER_LAYER
         self.groups = self.game.all_sprites, self.game.attack
         pygame.sprite.Sprite.__init__(self,self.groups)
-        
+    
         self.reciever = entity
         self.attack = attack
-        
+        self.direction = direction
         self.x = x 
         self.y = y
         self.width = TILESIZE
         self.height = TILESIZE
-        
+        self.recieved = False
         self.animation_loop = 0
 
-        self.image = self.game.attack_spritesheet.get_sprite(0,0,self.width,self.height)
+        if self.direction == 'right':
+            self.animations = self.game.attack_spritesheet.get_sprites(0, 64, self.width, self.height, 1, 5)
+            self.image = self.animations[0]
+        else:
+            self.animations = self.game.attack_spritesheet.get_sprites(0, 96, self.width, self.height, 1, 5)
+            self.image = self.animations[0]
+        
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
-        
-        self.recieved = False
+
+        play_sound('resources\\sounds\\sword_fight_1.wav',0.15)
         
     def update(self):
         self.animate()
         self.collide()
         
     def collide(self):
-        if self.reciever == 'enemy':
-            hits = pygame.sprite.spritecollide(self,self.game.enemies,False)
-            if hits and not self.recieved:
-                self.recieved = True
-                for enemy in hits:
-                    enemy.get_damage(self.attack)
-        if self.reciever == 'player':
-            hits = pygame.sprite.spritecollide(self,self.game.players,False)
-            if hits and not self.recieved:
-                self.recieved = True
-                for player in hits:
-                    if not player.damage_resistance:
-                        player.get_damage(self.attack)
+        target_group = self.game.enemies if self.reciever == 'enemy' else self.game.players
+        hits = pygame.sprite.spritecollide(self, target_group, False)
+        if hits and not self.recieved:
+            self.recieved = True
+            for target in hits:
+                print("x")
+                if self.reciever == 'player' and not target.damage_resistance:
+                    target.get_damage(self.attack)
+                elif self.reciever == 'enemy':
+                    target.get_damage(self.attack)
             
     def animate(self):
-        direction = self.game.player.facing
-        right_animations = [self.game.attack_spritesheet.get_sprite(0, 64, self.width, self.height),
-                        self.game.attack_spritesheet.get_sprite(32, 64, self.width, self.height),
-                           self.game.attack_spritesheet.get_sprite(64, 64, self.width, self.height),
-                           self.game.attack_spritesheet.get_sprite(96, 64, self.width, self.height),
-                           self.game.attack_spritesheet.get_sprite(128, 64, self.width, self.height)]
+        self.image = self.animations[math.floor(self.animation_loop)]
+        self.animation_loop += 0.5
+        if self.animation_loop >= len(self.animations):
+            if self.reciever == 'enemy':
+                self.game.player.is_attacking = False
+            self.kill()
 
-        left_animations = [self.game.attack_spritesheet.get_sprite(0, 96, self.width, self.height),
-                           self.game.attack_spritesheet.get_sprite(32, 96, self.width, self.height),
-                           self.game.attack_spritesheet.get_sprite(64, 96, self.width, self.height),
-                           self.game.attack_spritesheet.get_sprite(96, 96, self.width, self.height),
-                           self.game.attack_spritesheet.get_sprite(128, 96, self.width, self.height)]
-        if direction == 'right':
-            self.image = right_animations[math.floor(self.animation_loop)]
-            self.animation_loop += 0.5
-            if self.animation_loop >= 5:
-                if self.reciever == 'enemy':
-                    self.game.player.is_attacking = False
-                self.kill()
+"""
+Boss and Arrow to refractor.
+"""
+         
+class Boss(AbstractEnemy):
+    def __init__(self, game, x, y):
+        super().__init__(game, x, y)
         
-        if direction == 'left':
-            self.image = left_animations[math.floor(self.animation_loop)]
-            self.animation_loop += 0.5
-            if self.animation_loop >= 5:
-                if self.reciever == 'enemy':
-                    self.game.player.is_attacking = False
-                self.kill()
-            
-            
-class Boss(EnemyGreen):
-    def __init__(self, game, x, y, health, speed, attack, attack_ratio_max):
-        super().__init__(game, x, y, health, speed, attack, attack_ratio_max)
-
+        self.speed = ENEMY_RED_SPEED
+        self.current_health = ENEMY_MAX_HEALTH * 8
+        self.attack = ENEMY_GREEN_DAMAGE
+        self.attack_ratio_max = ENEMY_GREEN_ATTACK_RATIO
+        
         self.width = TILESIZE - 4
         self.height = 2 * TILESIZE
-
+    
         self.rect = pygame.Rect(x * TILESIZE, (y + 1) * TILESIZE - self.height, self.width, self.height)
-
-        self.left_animations = [
-            pygame.transform.flip(self.game.boss_spritesheet.get_sprite(0, 7, self.width, self.height), True, False),
-            pygame.transform.flip(self.game.boss_spritesheet.get_sprite(36, 7, self.width, self.height), True, False),
-            pygame.transform.flip(self.game.boss_spritesheet.get_sprite(64, 7, self.width, self.height), True, False)
-        ]
-
-        self.right_animations = [
-            self.game.boss_spritesheet.get_sprite(0, 7, self.width, self.height),
-            self.game.boss_spritesheet.get_sprite(36, 7, self.width, self.height),
-            self.game.boss_spritesheet.get_sprite(64, 7, self.width, self.height)
-        ]
-
-        self.image = self.game.boss_spritesheet.get_sprite(194, 7, self.width, self.height)
+        self.right_animations = self.game.boss_spritesheet.get_sprites(0, 7, self.width, self.height,1,3)
+        self.left_animations = [pygame.transform.flip(img, True, False) for img in self.right_animations]
+        self.image = self.right_animations[0]
         self.image.set_colorkey(BLACK)
 
         self.change_time = 0
         self.activate = False
         self.magic = 0
         self.arrow_time = 0
-
 
     def random_version(self):
         result = self.magic
@@ -310,7 +267,7 @@ class Boss(EnemyGreen):
                 self.rect.x = self.random_version() * TILESIZE
             elif self.magic == 4:
                 self.game.player.current_health += 8
-   
+
       
     def activation(self):
         if math.sqrt((self.rect.x - self.game.player.rect.x)**2 + (self.rect.y - self.game.player.rect.y)**2) * TILESIZE < 3 * TILESIZE:
@@ -328,10 +285,7 @@ class Boss(EnemyGreen):
         self.current_health -= amount
         if self.current_health <=0:
             self.fix_magic_sequence()
-            channel = pygame.mixer.find_channel()
-            sound = pygame.mixer.Sound('resources\\sounds\\harm.wav')
-            sound.set_volume(0.2)
-            channel.play(sound)
+            play_sound('resources\\sounds\\harm.wav',0.2)
             for sprite in self.game.gate.sprites():
                 sprite.kill()
             self.kill()
@@ -343,8 +297,6 @@ class Boss(EnemyGreen):
                 Arrow(self.game, self.rect.x, self.rect.y + 32, self.facing) 
                 self.arrow_time = curr_time
 
-
-
     def update(self):
         self.activation()
         self.cupids_arrow()
@@ -355,12 +307,9 @@ class Boss(EnemyGreen):
         self.collide_player()
         self.rect.x += self.x_change
         self.collide = self.collide_blocks()
-        self.rect.y += self.y_change
         self.attack_player(1)
         self.x_change = 0
-        self.y_change = 0
     
-
 class Arrow(pygame.sprite.Sprite):
     def __init__(self, game, x, y, direction):
         self.game = game

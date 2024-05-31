@@ -5,22 +5,14 @@ import random
 from enemy import Attack
 from items import *
 
-class Spritesheet:
-    def __init__(self, file):
-        self.sheet = pygame.image.load(file).convert()
-        
-    def get_sprite(self, x, y, width, height):
-        sprite = pygame.Surface([width,height])
-        sprite.blit(self.sheet, (0,0), (x,y, width, height))
-        sprite.set_colorkey(BLACK)
-        return sprite
-
 '''
 To move use left and right.
 To jump us up. After reaching the door
 use down to enter next level.
 '''
-
+"""
+Player to refractor.
+"""
 class Player(pygame.sprite.Sprite):
     def  __init__(self,game,x,y,health,health_bar_size,sword_type):
         self.game = game
@@ -61,7 +53,11 @@ class Player(pygame.sprite.Sprite):
         self.facing = 'right'
         self.animation_loop = 1
         
-        self.image = self.game.character_spritesheet.get_sprite(0,0, self.width, self.height)
+        self.left_animations = self.game.character_spritesheet.get_sprites(3, 98, self.width, self.height, 1, 3)
+
+        self.right_animations = self.game.character_spritesheet.get_sprites(3, 66, self.width, self.height, 1, 3)
+        
+        self.image = self.right_animations[0]
         
         self.rect = self.image.get_rect()
         self.rect.x = self.x
@@ -90,33 +86,18 @@ class Player(pygame.sprite.Sprite):
         elif sword_type == 5:
             self.damage = PLAYER_DEFAULT_DAMAGE * 3
         
-    def animate(self):
-
-        left_animations = [self.game.character_spritesheet.get_sprite(3, 98, self.width, self.height),
-                           self.game.character_spritesheet.get_sprite(35, 98, self.width, self.height),
-                           self.game.character_spritesheet.get_sprite(68, 98, self.width, self.height)]
-
-        right_animations = [self.game.character_spritesheet.get_sprite(3, 66, self.width, self.height),
-                            self.game.character_spritesheet.get_sprite(35, 66, self.width, self.height),
-                            self.game.character_spritesheet.get_sprite(68, 66, self.width, self.height)]
+    def animate(self): 
+        if self.facing == "left" and self.x_change != 0:
+            self.image = self.left_animations[math.floor(self.animation_loop)]
+            self.animation_loop += 0.1
+            if self.animation_loop >= 3:
+                self.animation_loop = 1
         
-        if self.facing == "left":
-            if self.x_change == 0:
-                self.image = self.game.character_spritesheet.get_sprite(3, 98, self.width, self.height)
-            else:
-                self.image = left_animations[math.floor(self.animation_loop)]
-                self.animation_loop += 0.1
-                if self.animation_loop >= 3:
-                    self.animation_loop = 1
-        
-        if self.facing == "right":
-            if self.x_change == 0:
-                self.image = self.game.character_spritesheet.get_sprite(3, 66, self.width, self.height)
-            else:
-                self.image = right_animations[math.floor(self.animation_loop)]
-                self.animation_loop += 0.1
-                if self.animation_loop >= 3:
-                    self.animation_loop = 1
+        if self.facing == "right" and self.x_change != 0:
+            self.image = self.right_animations[math.floor(self.animation_loop)]
+            self.animation_loop += 0.1
+            if self.animation_loop >= 3:
+                self.animation_loop = 1
                         
     def update(self):
         self.movement()
@@ -160,10 +141,6 @@ class Player(pygame.sprite.Sprite):
         
         if keys[pygame.K_SPACE] and not self.is_attacking:
             self.is_attacking = True
-            channel = pygame.mixer.find_channel()
-            sound = pygame.mixer.Sound('resources\\sounds\\sword_fight_1.wav')
-            sound.set_volume(0.15)
-            channel.play(sound)
             self.attack()
             
         if not self.is_jump:
@@ -333,7 +310,6 @@ class Player(pygame.sprite.Sprite):
             self.enter_next_level = False
             self.enter_next_semi_level = False
 
-
     def get_next_level_pred(self):
         return self.enter_next_level
 
@@ -345,10 +321,7 @@ class Player(pygame.sprite.Sprite):
 
     def get_damage(self,amount):
         if self.current_health > 0:
-            channel = pygame.mixer.find_channel()
-            sound = pygame.mixer.Sound('resources\\sounds\\guard-hit.wav')
-            sound.set_volume(0.2)
-            channel.play(sound)
+            play_sound('resources\\sounds\\guard-hit.wav',0.2)
             self.current_health -= amount
             self.health_bar.change_current_hp(-amount)
         if self.current_health <= 0:
@@ -361,17 +334,16 @@ class Player(pygame.sprite.Sprite):
         if self.current_health >= self.maximum_health:
             self.current_health = self.maximum_health
             
-    def attack(self):
-        
+    def attack(self):  
         if self.facing == 'right':
-            Attack(self.game, self.rect.x + TILESIZE,self.rect.y,'enemy',self.damage)
+            Attack(self.game, self.rect.x + TILESIZE,self.rect.y,'enemy',self.damage, self.facing)
             if self.sword_type == 2 and random.random()<0.5:
-                Attack(self.game, self.rect.x + 2*TILESIZE,self.rect.y,'enemy',self.damage)
+                Attack(self.game, self.rect.x + 2*TILESIZE,self.rect.y,'enemy',self.damage, self.facing)
                 
         if self.facing == 'left':
-            Attack(self.game, self.rect.x - TILESIZE,self.rect.y,'enemy',self.damage)
+            Attack(self.game, self.rect.x - TILESIZE,self.rect.y,'enemy',self.damage, self.facing)
             if self.sword_type == 2 and random.random()<0.5:
-                Attack(self.game, self.rect.x - 2*TILESIZE,self.rect.y,'enemy',self.damage)
+                Attack(self.game, self.rect.x - 2*TILESIZE,self.rect.y,'enemy',self.damage, self.facing)
                 
         if self.sword_type == 1 and random.random()<0.15:
                 self.get_damage(8)
@@ -385,8 +357,6 @@ class Player(pygame.sprite.Sprite):
                 HealthPotion(self.game,self.rect.x//32,self.rect.y//32)
             elif potion_type == '2':
                 SpeedPotion(self.game,self.rect.x//32,self.rect.y//32)
-            elif potion_type == '3':
-                JumpPotion(self.game,self.rect.x//32,self.rect.y//32)
             elif potion_type == '4':
                 NoFallDamagePotion(self.game,self.rect.x//32,self.rect.y//32)
             elif potion_type == '5':
@@ -395,54 +365,40 @@ class Player(pygame.sprite.Sprite):
         if self.sword_type == 5 and random.random()<0.05:
             for enemy in self.game.enemies:
                 enemy.kill()
-        
-
+                
+"""
+HealthBar refractored.
+"""
 class HealthBar(pygame.sprite.Sprite):
-    def  __init__(self,game,player,size):
+    def __init__(self, game, player, size):
         self.game = game
         self.player = player
         self._layer = PLAYER_LAYER
         self.groups = self.game.all_sprites
-        pygame.sprite.Sprite.__init__(self,self.groups)
+        pygame.sprite.Sprite.__init__(self, self.groups)
         
         self.x = size
         self.y = TILESIZE
         self.width = 10 * TILESIZE
-        self.height = TILESIZE//2
+        self.height = TILESIZE // 2
+        self.border_width = 2
         
-        
-        border_width = 2
-        self.image = pygame.Surface((self.width+2*border_width,self.height + 2* border_width))
-        self.image.fill(WHITE)
-        left_surface = pygame.Surface((self.x,self.height))
-        left_surface.fill(GREEN)
-        right_surface = pygame.Surface((self.width-self.x,self.height))
-        right_surface.fill(BLACK)
-        self.image.blit(left_surface,(2,2))
-        self.image.blit(right_surface,(self.x+2,2))
+        self.image = pygame.Surface((self.width + 2 * self.border_width, self.height + 2 * self.border_width))
         self.rect = self.image.get_rect()
-        
         self.rect.x = TILESIZE // 2
-        self.rect.y = HEIGHT - TILESIZE//1.5
-    def change_current_hp(self,amount):
-        if self.x+amount > 0 and self.x+amount<self.width:
-            self.x+=amount
-            left_surface = pygame.Surface((self.x,self.height))
-            left_surface.fill(GREEN)
-            right_surface = pygame.Surface((self.width-self.x,self.height))
-            left_border = pygame.Surface((2,self.height))
-            left_border.fill(WHITE)
-            right_surface.fill(BLACK)
-            self.image.blit(left_surface,(2,2))
-            self.image.blit(right_surface,(self.x+2,2))
-        elif self.x+amount<=0:
-            self.x=self.width
-            surface = pygame.Surface((self.x,self.height))
-            surface.fill(BLACK)
-            self.image.blit(surface,(2,2))
-            print("YOU DIED")
-        else:
-            self.x=self.width
-            surface = pygame.Surface((self.x,self.height))
-            surface.fill(GREEN)
-            self.image.blit(surface,(2,2))
+        self.rect.y = HEIGHT - TILESIZE // 1.5
+        
+        self.update_image()
+        
+    def update_image(self):
+        self.image.fill(WHITE)
+        left_surface = pygame.Surface((self.x, self.height))
+        left_surface.fill(GREEN)
+        right_surface = pygame.Surface((self.width - self.x, self.height))
+        right_surface.fill(BLACK)
+        self.image.blit(left_surface, (self.border_width, self.border_width))
+        self.image.blit(right_surface, (self.x + self.border_width, self.border_width))
+    
+    def change_current_hp(self, amount):
+        self.x = max(0, min(self.width, self.x + amount))
+        self.update_image()
