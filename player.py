@@ -174,7 +174,7 @@ class Player(pygame.sprite.Sprite):
                     self.y_change -= (self.fall_count * abs(self.fall_count)) * 0.4
                     self.fall_count -= 1
                 else:
-                    self.y_change=PLAYER_FALL_SPEED+1
+                    self.y_change = PLAYER_FALL_SPEED + 1
                 
         else:
             if self.jump_count >= -11:
@@ -225,12 +225,22 @@ class Player(pygame.sprite.Sprite):
         flag_down = False
 
         if direction == "x":
+            hits_press = pygame.sprite.spritecollide(self, self.game.movingblocks, False)
             hits = pygame.sprite.spritecollide(self, self.game.collisions.sprites() + self.game.protections.sprites(), False)
             if hits:
-                if self.x_change > 0:
+                # if self.x_change > 0 and not hits_press:
+                #     self.rect.x = hits[0].rect.left - self.rect.width
+
+                # if self.x_change < 0 and not hits_press:
+                #     self.rect.x = hits[0].rect.right
+                no_hits_press_above = all(obj.rect.y < self.rect.y for obj in hits_press)
+        
+                if self.x_change > 0 and no_hits_press_above:
                     self.rect.x = hits[0].rect.left - self.rect.width
-                if self.x_change < 0:
+                
+                if self.x_change < 0 and no_hits_press_above:
                     self.rect.x = hits[0].rect.right
+
                     
         if direction == "y":
             hits = pygame.sprite.spritecollide(self, self.game.collisions, False)
@@ -238,6 +248,9 @@ class Player(pygame.sprite.Sprite):
             hits_down = pygame.sprite.spritecollide(self, self.game.down_press, False)
             hits_trap = pygame.sprite.spritecollide(self, self.game.traps, False)
             hits_upper = pygame.sprite.spritecollide(self, self.game.upper_press, False)
+            hits_press = pygame.sprite.spritecollide(self, self.game.movingblocks, False)
+
+
             if hits:
                 flag_block = True
                 if self.y_change > 0:
