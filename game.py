@@ -47,16 +47,17 @@ class Game:
         self.current_level_index = 0
         self.change_level = False
         self.show_special_image_flag = True
-        self.special_image_start_time = pygame.time.get_ticks()
+        self.special_image_start_time = 0
         self.game_over_flag = False
+        self.new_record = False
 
         self.start_time = 10 * 60 * 1000 
         self.time_left = self.start_time
 
         # Load and play background music
-        # pygame.mixer.music.load('resources/sounds/theme.mp3')
-        # pygame.mixer.music.play(-1)
-        # pygame.mixer.music.set_volume(0.3)
+        pygame.mixer.music.load('resources/sounds/theme.mp3')
+        pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(0.3)
 
     def createTilemap(self, level):
         for i, row in enumerate(level):
@@ -92,7 +93,6 @@ class Game:
                 if column == "C":
                     MovingBlock(self, j, i)
 
-
     def new(self, health_bar_size=10*TILESIZE, player_healt=PLAYER_MAX_HEALTH, sword_type=0):
         self.playing = True
         
@@ -115,6 +115,7 @@ class Game:
         self.gate = pygame.sprite.LayeredUpdates()
         self.arrows = pygame.sprite.LayeredUpdates()
         self.swords = pygame.sprite.LayeredUpdates()
+        self.movingblocks = pygame.sprite.LayeredUpdates()
 
         self.createTilemap(levels[self.current_level_index])
         
@@ -175,11 +176,88 @@ class Game:
             self.clock_update()
 
     def draw(self):  
-        if self.show_special_image_flag or self.game_over_flag:
-            special_image_path = self.special_images[self.current_special_image_index]
-            special_image = pygame.image.load(special_image_path)
-            scaled_image = pygame.transform.scale(special_image, (WIDTH, HEIGHT))
-            self.screen.blit(scaled_image, (0, 0))
+        if self.game_over_flag:
+            if self.special_image_start_time <= 30:
+                special_image_path = self.special_images[4]
+                special_image = pygame.image.load(special_image_path)
+                scaled_image = pygame.transform.scale(special_image, (WIDTH, HEIGHT))
+                self.screen.blit(scaled_image, (0, 0))
+                self.special_image_start_time += 1
+            else:
+                self.playing = False
+                
+        elif self.show_special_image_flag:
+            if self.special_image_start_time <= 30:
+                special_image_path = self.special_images[self.current_special_image_index]
+                special_image = pygame.image.load(special_image_path)
+                scaled_image = pygame.transform.scale(special_image, (WIDTH, HEIGHT))
+                self.screen.blit(scaled_image, (0, 0))
+                self.special_image_start_time += 1
+            else:
+                self.show_special_image_flag = False
+                self.special_image_start_time = 0
+        
+        elif self.new_record:
+            font = pygame.font.Font(None, 36)
+            title_font = pygame.font.Font(None, 80)
+            input_box = pygame.Rect(WIDTH//2 - 100, HEIGHT // 2, WIDTH // 2, 50)
+            color_inactive = pygame.Color('lightskyblue3')
+            color_active = pygame.Color('dodgerblue2')
+            color = color_inactive
+            active = False
+            text = ''
+            done = False
+            while not done:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        done = True
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if input_box.collidepoint(event.pos):
+                            active = not active
+                        else:
+                            active = False
+                        color = color_active if active else color_inactive
+                    if event.type == pygame.KEYDOWN:
+                        if active:
+                            if event.key == pygame.K_RETURN:
+                                scores = load_scores()
+                                minutes = self.time_left // 60000
+                                seconds = (self.time_left % 60000) // 1000
+                                result = str(minutes) + ':' + str(seconds)
+                                scores.append({"name": text, "time": result, "score": self.time_left})
+                                scores.sort(key=lambda x: x['score'], reverse=True)
+                                save_scores(scores[:10])
+                                done = True
+                            elif event.key == pygame.K_BACKSPACE:
+                                text = text[:-1]
+                            else:
+                                text += event.unicode
+                special_image_path = 'resources/images/menu/results_screen.png'
+                special_image = pygame.image.load(special_image_path)
+                scaled_image = pygame.transform.scale(special_image, (WIDTH, HEIGHT))
+                pygame.draw.rect(self.screen, (192, 192, 192), pygame.Rect(60,60,WIDTH-120,HEIGHT-164))
+                self.screen.blit(scaled_image, (0, 0))
+        
+                txt_surface = font.render(text, True, color)
+                width = max(200, txt_surface.get_width() + 10)
+                input_box.w = width
+
+                tekst = title_font.render("You win!!!", True, BLACK)
+                self.screen.blit(tekst, (WIDTH//2 - tekst.get_width()//2, HEIGHT//4))
+                
+                give_name_txt = font.render("Give your name below:", True, BLACK)
+                self.screen.blit(give_name_txt, (WIDTH//2 - give_name_txt.get_width()//2, input_box.y - 40))
+                
+                pygame.draw.rect(self.screen, color, input_box, 4)
+                self.screen.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
+
+                pygame.display.flip()
+                
+                self.clock.tick(FPS)
+                pygame.display.update()
+            else:
+                self.playing = False
+            
         else:
             image_as_background = pygame.image.load("resources/images/map_images/peakpx.jpg")
             scaled_background = pygame.transform.scale(image_as_background, (WIDTH, HEIGHT))
@@ -205,45 +283,22 @@ class Game:
         self.clock.tick(FPS)
         pygame.display.update()
 
-
     def main(self):
         while self.playing:
             self.events()
-            if self.show_special_image_flag or self.game_over_flag:
-                current_time = pygame.time.get_ticks()
-                if current_time - self.special_image_start_time > 2000:
-                    if self.show_special_image_flag:
-                        self.show_special_image_flag = False
-                        self.current_special_image_index = (self.current_special_image_index + 1) % len(self.special_images)
-                        self.new(player_healt=self.player.current_health, health_bar_size=self.player.health_bar.x, sword_type=self.player.sword_type)
-                    elif self.game_over_flag:
-                        self.playing = False
-                        pygame.mixer.music.stop() 
-
-                else:
-                    self.draw()
-                    continue
-
-            if (self.player.current_health == 0 and not self.game_over_flag) or self.time_left <= 0:
+            if self.player.current_health <= 0 or self.time_left <= 0:
                 self.game_over_flag = True
-                self.special_image_start_time = pygame.time.get_ticks()
-                self.current_special_image_index = 4
-
-            if self.change_level:
-                if self.current_level_index in {1, 3, 5, 7}:
+            if self.change_level and self.current_level_index != 8:
+                self.current_level_index += 1
+                if self.current_level_index in [2, 4, 6]:
+                    self.current_special_image_index += 1
                     self.show_special_image_flag = True
-                    self.special_image_start_time = pygame.time.get_ticks()
-
-                self.current_level_index = (self.current_level_index + 1) % len(levels)
-                if not self.show_special_image_flag:
-                    self.new(player_healt=self.player.current_health, health_bar_size=self.player.health_bar.x, sword_type=self.player.sword_type)
-                self.change_level = False
-
+                if self.current_level_index == 8:
+                    self.new_record = True
+                else:
+                    self.new(player_healt=self.player.current_health,health_bar_size=self.player.health_bar.x)
+                    self.change_level = False
             self.update()
             self.draw()
-
+        pygame.mixer.music.stop()
         self.running = False
-        
-    def game_over(self):
-        pass
-        #TODO
