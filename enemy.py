@@ -207,7 +207,6 @@ class Attack(pygame.sprite.Sprite):
         if hits and not self.recieved:
             self.recieved = True
             for target in hits:
-                print("x")
                 if self.reciever == 'player' and not target.damage_resistance:
                     target.get_damage(self.attack)
                 elif self.reciever == 'enemy':
@@ -230,7 +229,7 @@ class Boss(AbstractEnemy):
         super().__init__(game, x, y)
         
         self.speed = ENEMY_RED_SPEED
-        self.current_health = ENEMY_MAX_HEALTH * 8
+        self.current_health = ENEMY_MAX_HEALTH
         self.attack = ENEMY_GREEN_DAMAGE
         self.attack_ratio_max = ENEMY_GREEN_ATTACK_RATIO
         

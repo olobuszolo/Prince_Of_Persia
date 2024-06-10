@@ -1,6 +1,6 @@
 import pygame
 from enum import Enum
-
+import json
 
 WIDTH = 1280
 HEIGHT = 800
@@ -40,6 +40,8 @@ PLAYER_JUMP_HEIGHT = 10
 
 PLAYER_MAX_HEALTH = 320
 ENEMY_MAX_HEALTH = 80
+
+SCORES_FILE = "high_scores.json"
 
 new_levels_index = [1, 3, 5, 7]
 
@@ -302,7 +304,7 @@ class PotionType(Enum):
     NODAMAGE = 4
 
 levels = [level1, level1_2, level2, level2_2, level3, level3_1, level4, level4_1]
-start_position = [(1,21), (1, 3), (1,20), (2,5), (1, 21), (1, 3), (2,21), (2,5)]
+start_position = [(1,21), (1, 3), (1,20), (2,5), (1, 21), (1, 3), (2,21), (2,20)]
 enemy_positions = [
                    [(9,13,'g')],
                    [(11,15,'b')],
@@ -343,3 +345,14 @@ def play_sound(path,volume):
     pygame.mixer.music.pause()
     channel.play(sound)
     pygame.mixer.music.unpause()
+    
+def load_scores():
+    try:
+        with open(SCORES_FILE, 'r') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return []
+
+def save_scores(scores):
+    with open(SCORES_FILE, 'w') as file:
+        json.dump(scores, file, indent=4)
