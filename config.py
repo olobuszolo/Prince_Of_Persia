@@ -1,3 +1,7 @@
+import pygame
+from enum import Enum
+
+
 WIDTH = 1280
 HEIGHT = 800
 
@@ -61,7 +65,7 @@ basemap = [
     'B..............BB......................B',
     'B......................................B',
     'B.......BBB............................B',
-    'B...............................1......B',
+    'B......................................B',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
@@ -144,7 +148,7 @@ level2 = [
     'B...............BB.....................B',
     'B......B.......BB......................B',
     'B.......B....BBBB......................B',
-    'B...5...B...............BBB...B........B',
+    'B.......B...............BBB...B........B',
     'BBBBBBTTBBBBBBBBBBBBBBBBBBBB..BBBB.....B',
     'BBBBBB........................BBBBBBBBBB',
     'BBBBBB........................BBBBBBBBBB',
@@ -187,14 +191,14 @@ level3 = [
     'B............BBBB..BBBBBBBBBBBBBBBBBBBBB',
     'B...........BB.........................B',
     'B......................................B',
-    'B..2S..................................B',
+    'B...S..................................B',
     'BBBBBBBBBBBBB..........................B',
     'B.................BBBBB................B',
     'B...............B......................B',
     'B...............B......................B',
     'B...........BBBBB......................B',
     'B......................................B',
-    'B1.....................................B',
+    'B......................................B',
     'BBB....................................B',
     'BBBBBBBBBBBBBBBBBBBBBBBBB...B..........B',
     'B...................C..................B',
@@ -281,7 +285,7 @@ level4_1 = [
     'B......................................B',
     'B...........BBBBBBBBBBBB...............B',
     'B......................................B',
-    'BBBBBB......1..........................B',
+    'BBBBBB.................................B',
     'B.....BBBBBBBB.........................B',
     'B.....A............BBB...........BBB...B',
     'B.....A................................B',
@@ -291,6 +295,11 @@ level4_1 = [
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
 ]
 
+class PotionType(Enum):
+    HEALTH = 1
+    SPEED = 2
+    NOFALL = 3
+    NODAMAGE = 4
 
 levels = [level1, level1_2, level2, level2_2, level3, level3_1, level4, level4_1]
 start_position = [(1,21), (1, 3), (1,20), (2,5), (1, 21), (1, 3), (2,21), (2,5)]
@@ -304,4 +313,33 @@ enemy_positions = [
                    [],
                    []]
 boss_positions = [[],[],[],[],[],[],[],[(12, 21)]]
+potions_positions = [[(21,14,PotionType.HEALTH)],[],[],[(20,4,PotionType.NODAMAGE)],[],[(10,1,PotionType.HEALTH),(6,4,PotionType.SPEED)],[],[]]
 swords_positions = [[],[],[(8,10,1),(9,10,2),(10,10,3),(11,10,4),(12,10,5)],[],[],[],[],[]]
+
+
+class Spritesheet:
+    def __init__(self, file):
+        self.sheet = pygame.image.load(file).convert()
+        
+    def get_sprite(self, x, y, width, height):
+        sprite = pygame.Surface([width,height])
+        sprite.blit(self.sheet, (0,0), (x,y, width, height))
+        sprite.set_colorkey(BLACK)
+        return sprite
+    
+    def get_sprites(self, start_x, start_y, width, height, rows, columns):
+        sprites = []
+        for row in range(rows):
+            for col in range(columns):
+                sprite_x = start_x + col * width
+                sprite_y = start_y + row * height
+                sprites.append(self.get_sprite(sprite_x, sprite_y, width, height))
+        return sprites
+
+def play_sound(path,volume):
+    channel = pygame.mixer.find_channel()
+    sound = pygame.mixer.Sound(path)
+    sound.set_volume(volume)
+    pygame.mixer.music.pause()
+    channel.play(sound)
+    pygame.mixer.music.unpause()

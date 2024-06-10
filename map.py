@@ -22,7 +22,6 @@ class Block(pygame.sprite.Sprite): #B
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
 
-
 class MovingBlock(Block):
     """
     This is implementation of press.
@@ -78,6 +77,7 @@ class Gate(pygame.sprite.Sprite): #A
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
+        
 class Door(pygame.sprite.Sprite): #D
     def __init__(self, game, x, y):
         self.game = game
@@ -108,7 +108,6 @@ class Door(pygame.sprite.Sprite): #D
             if self.is_open:
                 self.image = pygame.transform.scale(self.image_brick_close, (self.width, self.height))
                 self.is_open = False
-       
 
 class FallingLeft(pygame.sprite.Sprite): #falling bricks
     def __init__(self, game, x, y):
@@ -196,7 +195,6 @@ class FallingLeftBottomUp(FallingLeft):
         player_x = self.game.player.rect.x
         if ((player_x + 2*TILESIZE> self.rect.x) and (player_y - self.rect.y < 4*TILESIZE)):
             self.fall_speed = FALL_SPEED
-    
 
 class Spikes(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -240,7 +238,6 @@ class Spikes(pygame.sprite.Sprite):
             self.game.player.get_damage(32)
             self.damage = 0
             self.damage_time = pygame.time.get_ticks()
-
 
 class SemiDoors(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -358,7 +355,6 @@ class Lift(pygame.sprite.Sprite):
                 self.game.player.rect.y = self.rect.y + 4
                 self.game.player.is_on_lift = False
         
-
 # class UpperPress(Lift):
 #     def __init__(self, game, x, y):
 #         super().__init__(game, x, y)
@@ -437,7 +433,6 @@ class Lift(pygame.sprite.Sprite):
 #             self.fall_speed = -self.fall_speed
 #             self.rect.y -= self.fall_speed 
             
-
 class Fakes(pygame.sprite.Sprite): #V
     def __init__(self, game, x, y):
         self.game = game

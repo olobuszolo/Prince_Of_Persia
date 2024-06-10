@@ -1,9 +1,10 @@
 import pygame
 from config import *
-from main import *
-import sys
-import os
+from game import *
 
+"""
+To look and refractor if needed.
+"""
 class Menu:
     def __init__(self):
         pygame.init()
@@ -29,10 +30,11 @@ class Menu:
         self.menu_music = 'resources/sounds/Artur-Andrus-Cyniczne-córy-Zurychu (1) (mp3cut.net).mp3'
 
     def play_menu_music(self):
-        if not pygame.mixer.music.get_busy():
-            pygame.mixer.music.load(self.menu_music)
-            pygame.mixer.music.play(-1)
-            pygame.mixer.music.set_volume(0.3)
+        pass
+        # if not pygame.mixer.music.get_busy():
+        #     pygame.mixer.music.load(self.menu_music)
+        #     pygame.mixer.music.play(-1)
+        #     pygame.mixer.music.set_volume(0.3)
 
     def run(self):
         self.play_menu_music()
@@ -86,11 +88,3 @@ class Menu:
         
         pygame.display.flip()
         self.clock.tick(60)
-
-if __name__ == '__main__':
-    m = Menu()
-    try:
-        m.run()
-    finally:
-        pygame.quit()
-        sys.exit()
