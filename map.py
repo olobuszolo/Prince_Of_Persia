@@ -24,6 +24,9 @@ class Block(pygame.sprite.Sprite): #B
 
 
 class MovingBlock(Block):
+    """
+    This is implementation of press.
+    """
     def __init__(self, game, x, y):
         super().__init__(game, x, y)
         self.height = 4 * TILESIZE
@@ -38,7 +41,11 @@ class MovingBlock(Block):
         self.direction = 1  
         self.movement_distance = 0
         self.max_distance = 4 * TILESIZE
-        self.fall_speed = FALL_SPEED
+        self.fall_speed = FALL_SPEED // 2
+
+        self.groups = self.game.all_sprites, self.game.blocks, self.game.collisions, self.game.movingblocks
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
 
     def update(self):
         self.y += self.direction * self.fall_speed

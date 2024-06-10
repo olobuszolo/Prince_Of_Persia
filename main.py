@@ -123,6 +123,7 @@ class Game:
         self.gate = pygame.sprite.LayeredUpdates()
         self.arrows = pygame.sprite.LayeredUpdates()
         self.swords = pygame.sprite.LayeredUpdates()
+        self.movingblocks = pygame.sprite.LayeredUpdates()
 
         self.createTilemap(levels[self.current_level_index])
         
