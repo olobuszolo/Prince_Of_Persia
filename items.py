@@ -141,10 +141,8 @@ class Sword(pygame.sprite.Sprite):
         self.game.player.damage = self.attack
         self.kill()
 
-"""
-Delete Description or use somewhere else.
-"""
 class Description(pygame.sprite.Sprite):
+    """Delete Description or use somewhere else."""
     def __init__(self, game, x, y):
         self.game = game
         self._layer = PLAYER_LAYER

@@ -229,8 +229,8 @@ class Boss(AbstractEnemy):
         super().__init__(game, x, y)
         
         self.speed = ENEMY_RED_SPEED
-        self.current_health = ENEMY_MAX_HEALTH
-        self.attack = ENEMY_GREEN_DAMAGE
+        self.current_health = ENEMY_MAX_HEALTH * 6.5
+        self.attack = ENEMY_GREEN_DAMAGE * 3.5
         self.attack_ratio_max = ENEMY_GREEN_ATTACK_RATIO
         
         self.width = TILESIZE - 4

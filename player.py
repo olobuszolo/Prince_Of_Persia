@@ -123,8 +123,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.x -= 3*TILESIZE
             self.rect.y += 0.5 * TILESIZE
             self.press_flag = False
-
-        
+       
     def movement(self):
         keys = pygame.key.get_pressed()
         
@@ -190,7 +189,7 @@ class Player(pygame.sprite.Sprite):
                 self.no_fall_damage_time = 0
                 
         if self.damage_resistance:
-            if self.damage_resistance_time < 40:
+            if self.damage_resistance_time < 15:
                 self.damage_resistance_time += .1
             else:
                 self.damage_resistance = False
@@ -375,7 +374,7 @@ class Player(pygame.sprite.Sprite):
             elif potion_type == '5':
                 DamageResistancePotion(self.game,self.rect.x//32,self.rect.y//32)
                 
-        if self.sword_type == 5 and random.random()<0.05:
+        if self.sword_type == 5 and random.random()<0.01:
             for enemy in self.game.enemies:
                 enemy.kill()
                 

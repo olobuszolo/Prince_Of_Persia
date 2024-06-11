@@ -145,7 +145,7 @@ class Game:
                 case PotionType.NOFALL:
                     NoFallDamagePotion(self,potion[0],potion[1])
                 case PotionType.NODAMAGE:
-                    NoFallDamagePotion(self,potion[0],potion[1])
+                    DamageResistancePotion(self,potion[0],potion[1])
         
         for sword in swords_positions[self.current_level_index]:
             Sword(self, sword[0], sword[1], sword[2])
@@ -177,7 +177,7 @@ class Game:
 
     def draw(self):  
         if self.game_over_flag:
-            if self.special_image_start_time <= 30:
+            if self.special_image_start_time <= 120:
                 special_image_path = self.special_images[4]
                 special_image = pygame.image.load(special_image_path)
                 scaled_image = pygame.transform.scale(special_image, (WIDTH, HEIGHT))
@@ -187,7 +187,7 @@ class Game:
                 self.playing = False
                 
         elif self.show_special_image_flag:
-            if self.special_image_start_time <= 30:
+            if self.special_image_start_time <= 120:
                 special_image_path = self.special_images[self.current_special_image_index]
                 special_image = pygame.image.load(special_image_path)
                 scaled_image = pygame.transform.scale(special_image, (WIDTH, HEIGHT))
