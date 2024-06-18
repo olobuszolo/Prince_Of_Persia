@@ -263,7 +263,7 @@ class Game:
                     self.new_record = True
 
                 else:
-                    self.new(player_healt = self.player.current_health, health_bar_size = self.player.health_bar.x)
+                    self.new(player_healt = self.player.current_health, health_bar_size = self.player.health_bar.x, sword_type = self.player.sword_type)
                     self.change_level = False
 
             self.update()

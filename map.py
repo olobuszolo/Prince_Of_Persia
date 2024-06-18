@@ -1,8 +1,6 @@
-from typing import Any
 from config import *
 import pygame
 import math
-import time
 
 class Block(pygame.sprite.Sprite):
     def __init__(self, game, x, y):

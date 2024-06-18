@@ -69,12 +69,16 @@ class DamageResistancePotion(Potion):
     
     def influence_action(self):
         self.game.player.damage_resistance = True
-
-
-"""
-To change sword. Make 2 different class of swords, one for eq one for map.
-"""        
+     
 class Sword(pygame.sprite.Sprite):
+    SWORD_TYPES = {
+        1: (0, 1.25),
+        2: (32, 1.5),
+        3: (64, 1.75),
+        4: (96, 2),
+        5: (128, 3)
+    }
+
     def __init__(self, game, x, y, typ):
         self.game = game
         self._layer = BLOCK_LAYER
@@ -88,23 +92,13 @@ class Sword(pygame.sprite.Sprite):
         self.animation_loop = 0
         self.type = typ
         
-        if typ == 1:
-            self.image = SWORDS_SPRITESHEET.get_sprite(0, 0, self.width, self.height)
-            self.attack = PLAYER_DEFAULT_DAMAGE * 1.25
-        elif typ == 2:
-            self.image = SWORDS_SPRITESHEET.get_sprite(32, 0, self.width, self.height)
-            self.attack = PLAYER_DEFAULT_DAMAGE * 1.5
-        elif typ == 3:
-            self.image = SWORDS_SPRITESHEET.get_sprite(64, 0, self.width, self.height)
-            self.attack = PLAYER_DEFAULT_DAMAGE * 1.75
-        elif typ == 4:
-            self.image = SWORDS_SPRITESHEET.get_sprite(96, 0, self.width, self.height)
-            self.attack = PLAYER_DEFAULT_DAMAGE * 2
-        elif typ == 5:
-            self.image = SWORDS_SPRITESHEET.get_sprite(128, 0, self.width, self.height)
-            self.attack = PLAYER_DEFAULT_DAMAGE * 3
+        if typ in self.SWORD_TYPES:
+            sprite_x, damage_mult = self.SWORD_TYPES[typ]
+            self.image = SWORDS_SPRITESHEET.get_sprite(sprite_x, 0, self.width, self.height)
+            self.attack = PLAYER_DEFAULT_DAMAGE * damage_mult
         else:
             self.kill()
+            return
             
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
