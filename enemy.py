@@ -181,7 +181,6 @@ class Boss(Enemy):
     
     def get_damage(self, amount):
         self.current_health -= amount
-        print(self.current_health)
         if self.current_health <= 0:
             self.fix_magic_sequence()
             play_sound(GET_DAMAGE_SOUND_PATH, 0.2)

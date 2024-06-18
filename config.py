@@ -129,14 +129,13 @@ BRICK_IMAGE = pygame.transform.scale(pygame.image.load("resources/images/map_ima
 PRESS_IMAGE = pygame.transform.scale(pygame.image.load("resources/images/map_images/press.png"), (2 * TILESIZE, 4 * TILESIZE))
 DOORS_IMAGE_CLOSE = pygame.transform.scale(pygame.image.load("resources/images/map_images/door_stairs.png"), (3 * TILESIZE, 4 * TILESIZE))
 DOORS_IMAGE_OPEN = pygame.transform.scale(pygame.image.load("resources/images/map_images/door_stairs_open.png"), (3 * TILESIZE, 4 * TILESIZE))
-# SEMI_DOORS_IMAGE = pygame.transform.scale(pygame.image.load("resources/images/map_images/halfdoors.png"), (TILESIZE, 2 * TILESIZE))
 SPIKES_IMAGE = pygame.transform.scale(pygame.image.load("resources/images/map_images/spikes.png"), (TILESIZE, 1.3 * TILESIZE))
 
 EMPTY_IMAGE = pygame.Surface((TILESIZE, TILESIZE), pygame.SRCALPHA)
 
 FALLING_IMAGES = list(map(pygame.transform.scale, list(map(pygame.image.load, ["resources/images/map_images/fake.png",
-                                                                              "resources/images/map_images/fake.png",
-                                                                              "resources/images/map_images/fake.png"])), [(TILESIZE, TILESIZE // 2)] * 3))
+                                                                              "resources/images/map_images/fake1.png",
+                                                                              "resources/images/map_images/fake2.png"])), [(TILESIZE, TILESIZE // 2)] * 3))
 
 GAME_BACKGROUND = pygame.transform.scale(pygame.image.load("resources/images/map_images/peakpx.jpg"), (WIDTH, HEIGHT))
 SPECIAL_IMAGES = list(map(pygame.transform.scale,list(map(pygame.image.load,['resources/images/menu/poziom1.png',
