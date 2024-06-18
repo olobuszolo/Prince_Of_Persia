@@ -105,7 +105,7 @@ class Door(pygame.sprite.Sprite):
                 self.image = self.image_brick_close
                 self.is_open = False
 
-class FallingLeft(pygame.sprite.Sprite): #falling bricks
+class FallingLeft(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
         self._layer = BLOCK_LAYER
@@ -241,7 +241,7 @@ class SemiDoors(pygame.sprite.Sprite):
         self.y = y * TILESIZE
         self.width = TILESIZE
         self.height = TILESIZE * 2
-        self.image = SEMI_DOORS_IMAGE
+        self.image = EMPTY_IMAGE
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
@@ -255,7 +255,7 @@ class Protection(Block):
         self.width = TILESIZE
         self.height = TILESIZE
 
-        self.image = SEMI_DOORS_IMAGE
+        self.image = EMPTY_IMAGE
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)

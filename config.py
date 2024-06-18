@@ -1,6 +1,9 @@
 import pygame
 from enum import Enum
 import json
+import os
+
+current_dir = os.path.dirname(__file__)
 
 class Spritesheet:
     def __init__(self, file):
@@ -20,6 +23,12 @@ class Spritesheet:
                 sprite_y = start_y + row * height
                 sprites.append(self.get_sprite(sprite_x, sprite_y, width, height))
         return sprites
+
+class PotionType(Enum):
+    HEALTH = 1
+    SPEED = 2
+    NOFALL = 3
+    NODAMAGE = 4
 
 def play_sound(path,volume):
     channel = pygame.mixer.find_channel()
@@ -51,9 +60,9 @@ def save_scores(scores):
     with open(SCORES_FILE, 'w') as file:
         json.dump(scores, file, indent=4)
 
+# Constants
 WIDTH = 1280
 HEIGHT = 800
-
 FPS = 30
 TILESIZE = 32
 TIME = 10 * 60 * 1000 
@@ -95,6 +104,7 @@ ENEMY_MAX_HEALTH = 80
 TITLE = 'Prince Of Persia'
 FONT_PATH = None
 
+# Load images and sounds and font paths
 MENU_BACKGROUND = pygame.transform.scale(pygame.image.load("resources/images/menu/start_menu.png"), (WIDTH, HEIGHT))
 INSTRUCTIONS_BACKGROUND = pygame.transform.scale(pygame.image.load("resources/images/menu/instructions.png"), (WIDTH, HEIGHT))
 RESULTS_BACKGROUND = pygame.transform.scale(pygame.image.load("resources/images/menu/results_screen.png"), (WIDTH, HEIGHT))
@@ -119,7 +129,7 @@ BRICK_IMAGE = pygame.transform.scale(pygame.image.load("resources/images/map_ima
 PRESS_IMAGE = pygame.transform.scale(pygame.image.load("resources/images/map_images/press.png"), (2 * TILESIZE, 4 * TILESIZE))
 DOORS_IMAGE_CLOSE = pygame.transform.scale(pygame.image.load("resources/images/map_images/door_stairs.png"), (3 * TILESIZE, 4 * TILESIZE))
 DOORS_IMAGE_OPEN = pygame.transform.scale(pygame.image.load("resources/images/map_images/door_stairs_open.png"), (3 * TILESIZE, 4 * TILESIZE))
-SEMI_DOORS_IMAGE = pygame.transform.scale(pygame.image.load("resources/images/map_images/halfdoors.png"), (TILESIZE, 2 * TILESIZE))
+# SEMI_DOORS_IMAGE = pygame.transform.scale(pygame.image.load("resources/images/map_images/halfdoors.png"), (TILESIZE, 2 * TILESIZE))
 SPIKES_IMAGE = pygame.transform.scale(pygame.image.load("resources/images/map_images/spikes.png"), (TILESIZE, 1.3 * TILESIZE))
 
 EMPTY_IMAGE = pygame.Surface((TILESIZE, TILESIZE), pygame.SRCALPHA)
@@ -135,7 +145,7 @@ SPECIAL_IMAGES = list(map(pygame.transform.scale,list(map(pygame.image.load,['re
                                                     'resources/images/menu/poziom4.png'
                                                     ])), [(WIDTH, HEIGHT)] * 4))
 GAME_OVER_IMAGE = pygame.transform.scale(pygame.image.load('resources/images/menu/game_over_image.png'), (WIDTH, HEIGHT))
-SHOWING_TIME = 10
+SHOWING_TIME = 60
 
 
 MENU_MUSIC_PATH = "resources/sounds/Artur-Andrus-Cyniczne-córy-Zurychu (1) (mp3cut.net).mp3"
@@ -144,12 +154,13 @@ POTION_SOUND_PATH = "resources\\sounds\\potion.wav"
 GET_DAMAGE_SOUND_PATH = "resources\\sounds\\harm.wav"
 PLAYER_GET_DAMAGE_SOUND_PATH = "resources\\sounds\\guard-hit.wav"
 ATTACK_SOUND_PATH = "resources\\sounds\\sword_fight_1.wav"
+FONT_PATH = os.path.join(current_dir, 'resources', 'PoP.ttf')
 
 SCORES_FILE = "high_scores.json"
 
+# Levels configuration
 NEW_LEVEL_INDEX = [2, 4, 6]
 LAST_LEVEL_INDEX = 8
-
 
 level1 = [
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
@@ -375,14 +386,8 @@ level4_1 = [
     'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
 ]
 
-class PotionType(Enum):
-    HEALTH = 1
-    SPEED = 2
-    NOFALL = 3
-    NODAMAGE = 4
-
 levels = [level1, level1_2, level2, level2_2, level3, level3_1, level4, level4_1]
-start_position = [(1,21), (1, 3), (1,20), (2,5), (1, 21), (1, 3), (2,21), (1,4)]
+start_position = [(1,21), (1, 3), (1,20), (3,5), (1, 21), (1, 3), (2,21), (1,4)]
 enemy_positions = [
                    [(9,13,'g')],
                    [(11,15,'b')],
