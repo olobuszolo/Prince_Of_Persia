@@ -125,6 +125,8 @@ class Game:
             Sword(self, sword[0], sword[1], sword[2])
 
     def events(self):
+        """Handle the events of the game.
+        Debugging version of the events method."""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.playing = False
