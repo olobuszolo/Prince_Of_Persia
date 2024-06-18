@@ -134,6 +134,7 @@ class EnemyRed(Enemy):
         super().__init__(game, x, y, ENEMY_RED_SPEED, ENEMY_RED_DAMAGE, ENEMY_RED_ATTACK_RATIO, ENEMY_RED_SPRITESHEET)
 
 class Boss(Enemy):
+    """Class for final boss. Inherits from enemy, has more health and when is activate shoots a bow."""
     def __init__(self, game, x, y):
         super().__init__(game, x, y, ENEMY_RED_SPEED, ENEMY_GREEN_DAMAGE * 3.5, ENEMY_GREEN_ATTACK_RATIO, BOSS_SPRITESHEET)
         self.current_health = ENEMY_MAX_HEALTH * 6.5

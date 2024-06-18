@@ -1,6 +1,6 @@
 import pygame
 from config import *
-from map import *
+from mapa import *
 from player import *
 from enemy import *
 from items import *
