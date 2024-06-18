@@ -173,11 +173,6 @@ class Game:
             title_font = pygame.font.Font(FONT_PATH, 80)
 
             input_box = pygame.Rect(WIDTH//2 - 100, HEIGHT // 2, WIDTH // 2, 50)
-
-            color_inactive = pygame.Color('lightskyblue3')
-            color_active = pygame.Color('dodgerblue2')
-            color = color_inactive
-
             active = False
             text = ''
             done = False
@@ -191,7 +186,6 @@ class Game:
                             active = not active
                         else:
                             active = False
-                        color = color_active if active else color_inactive
                     if event.type == pygame.KEYDOWN:
                         if active:
                             if event.key == pygame.K_RETURN:
@@ -210,7 +204,7 @@ class Game:
                 pygame.draw.rect(self.screen, GREY, pygame.Rect(60, 60, WIDTH-120, HEIGHT-164))
                 self.screen.blit(self.results_screen, (0, 0))
         
-                txt_surface = font.render(text, True, color)
+                txt_surface = font.render(text, True, BLACK)
                 width = max(200, txt_surface.get_width() + 10)
                 input_box.w = width
 
@@ -220,7 +214,7 @@ class Game:
                 give_name_txt = font.render("Give your name below:", True, BLACK)
                 self.screen.blit(give_name_txt, (WIDTH // 2 - give_name_txt.get_width() // 2, input_box.y - 40))
                 
-                pygame.draw.rect(self.screen, color, input_box, 4)
+                pygame.draw.rect(self.screen, BLACK, input_box, 4, 6)
                 self.screen.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
                 
                 self.clock.tick(FPS)
@@ -235,18 +229,19 @@ class Game:
             minutes, seconds = count_time(self.time_left)
             time_text = f"{minutes:02}:{seconds:02}"
 
-            font = pygame.font.Font(FONT_PATH, 74)
+            font = pygame.font.Font(FONT_PATH, 30)
             text = font.render(time_text, True, WHITE)
             
             text_width, text_height = text.get_size()
             rect_width = text_width + 20  
-            rect_height = text_height + 10
+            rect_height = text_height + 5
             rect_x = WIDTH // 2 - rect_width // 2
-            rect_y = 10
+            rect_y = 0
 
-            pygame.draw.rect(self.screen, BLACK, (rect_x, rect_y, rect_width, rect_height))
+            pygame.draw.rect(self.screen, BLACK, (rect_x, rect_y, rect_width, rect_height), 0, 5)
+            pygame.draw.rect(self.screen, YELLOW, (rect_x, rect_y, rect_width, rect_height), 2, 5)
 
-            self.screen.blit(text, (rect_x + 10, rect_y + 5))
+            self.screen.blit(text, (rect_x + 10, rect_y + 2.5))
         
         self.clock.tick(FPS)
         pygame.display.update()

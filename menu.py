@@ -85,13 +85,16 @@ class Menu:
 
         if self.showing_instructions:
             self.screen.blit(self.instructions_background, (0, 0))
-            pygame.draw.rect(self.screen, GREY, self.back_rect)
+            pygame.draw.rect(self.screen, GREY, self.back_rect, 0, 5)
+            pygame.draw.rect(self.screen, BLACK, self.back_rect, 2, 5)
             draw_text("Back", 36, (self.back_rect.x + 10, self.back_rect.y + 10))
 
         elif self.showing_results:
             self.screen.blit(self.results_image, (0, 0))
             pygame.draw.rect(self.screen, GREY, pygame.Rect(60, 60, WIDTH - 120, HEIGHT - 164))
             pygame.draw.rect(self.screen, GREY, self.back_rect)
+            pygame.draw.rect(self.screen, BLACK, self.back_rect, 2, 5)
+
             
             draw_text("High scores", 50, (WIDTH // 2, 70), center=True)
             draw_text("Back", 36, (self.back_rect.x + 10, self.back_rect.y + 10))
