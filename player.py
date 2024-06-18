@@ -6,6 +6,8 @@ from enemy import Attack
 from items import *
 
 class Player(pygame.sprite.Sprite):
+    """Class for the player character.
+    It allows the player to move, jump, attack and interact with the environment."""
     def  __init__(self,game,x,y,health,health_bar_size,sword_type):
         self.game = game
         self._layer = PLAYER_LAYER
@@ -357,6 +359,7 @@ class Player(pygame.sprite.Sprite):
             potion_class(self.game, self.rect.x // 32, self.rect.y // 32)
                 
 class HealthBar(pygame.sprite.Sprite):
+    """Class for the health bar of the player character."""
     def __init__(self, game, player, size):
         self.game = game
         self.player = player

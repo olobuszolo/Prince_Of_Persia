@@ -3,8 +3,9 @@ from config import *
 from game import *
 
 class Menu:
+    """Class for the main menu of the game.
+    It allows the player to start the game, see the instructions and the high scores."""
     def __init__(self):
-
         pygame.init()
         pygame.mixer.init()  
 

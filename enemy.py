@@ -4,6 +4,7 @@ import math
 import random
 
 class Enemy(pygame.sprite.Sprite):
+    """Abstract class for the enemies and boss in the game."""
     def __init__(self, game, x, y, speed, attack, attack_ratio_max, sprite_sheet):
         self.game = game
         self._layer = ENEMY_LAYER

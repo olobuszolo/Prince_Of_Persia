@@ -6,6 +6,7 @@ import os
 current_dir = os.path.dirname(__file__)
 
 class Spritesheet:
+    """ Class for loading spritesheets."""
     def __init__(self, file):
         self.sheet = pygame.image.load(file)
         

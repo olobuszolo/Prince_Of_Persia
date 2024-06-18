@@ -4,6 +4,7 @@ import math
 from random import choice
 
 class Potion(pygame.sprite.Sprite):
+    """Abstract class for the potions that the player can collect."""
     def __init__(self, game, x, y, sprite_sheet, influence_action):
         self.game = game
         self._layer = BLOCK_LAYER
@@ -71,6 +72,7 @@ class DamageResistancePotion(Potion):
         self.game.player.damage_resistance = True
      
 class Sword(pygame.sprite.Sprite):
+    """Class for the swords that the player can collect."""
     SWORD_TYPES = {
         1: (0, 1.25),
         2: (32, 1.5),

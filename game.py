@@ -7,6 +7,9 @@ from items import *
 import sys
 
 class Game:
+    """Class for the main game of the game.
+    It creates map, set player and enemies, and handle the game loop.
+    Draw the everything on the screen and update the game state."""
     def __init__(self):
 
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))

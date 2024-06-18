@@ -338,6 +338,8 @@ class Lift(pygame.sprite.Sprite):
                 self.game.player.is_on_lift = False       
 
 class Fakes(pygame.sprite.Sprite):
+    """Class for blocks that are not visible and use to
+    set enemies path boundaries."""
     def __init__(self, game, x, y):
         self.game = game
         self._layer = BLOCK_LAYER
