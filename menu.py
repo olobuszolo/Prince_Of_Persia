@@ -2,25 +2,21 @@ import pygame
 from config import *
 from game import *
 
-
-"""
-To look and refractor if needed.
-"""
 class Menu:
     def __init__(self):
+
         pygame.init()
         pygame.mixer.init()  
+
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.clock = pygame.time.Clock()
-        
-        background_image = pygame.image.load("resources/images/menu/start_menu.png")
-        self.background = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
-        
-        self.instructions_image = pygame.image.load("resources/images/menu/instructions.png")
-        self.instructions_background = pygame.transform.scale(self.instructions_image, (WIDTH, HEIGHT))
 
-        self.results_image = pygame.image.load("resources/images/menu/results_screen.png")
-        self.results_image = pygame.transform.scale(self.results_image, (WIDTH, HEIGHT))
+        pygame.display.set_caption(TITLE)
+        pygame.display.set_icon(ICON)
+        
+        self.background = MENU_BACKGROUND
+        self.instructions_background = INSTRUCTIONS_BACKGROUND
+        self.results_image = RESULTS_BACKGROUND
         
         self.game_rect = pygame.Rect(518, 51, 152, 67)
         self.instructions_rect = pygame.Rect(400, 120, 500, 74)
@@ -31,18 +27,10 @@ class Menu:
         self.in_menu = True
         self.showing_instructions = False
         self.showing_results = False
-
-        self.menu_music = 'resources/sounds/Artur-Andrus-Cyniczne-córy-Zurychu (1) (mp3cut.net).mp3'
         
-    def play_menu_music(self):
-        if not pygame.mixer.music.get_busy():
-            pygame.mixer.music.load(self.menu_music)
-            pygame.mixer.music.play(-1)
-            pygame.mixer.music.set_volume(0.3)
+        play_music(MENU_MUSIC_PATH)
 
     def run(self):
-        self.play_menu_music()
-
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -57,59 +45,62 @@ class Menu:
                 self.in_menu = False
                 pygame.mixer.music.stop() 
                 self.start_game()
+
             elif self.instructions_rect.collidepoint(pos):
                 self.in_menu = False
                 self.showing_instructions = True
+
             elif self.results_rect.collidepoint(pos):
                 self.in_menu = False
                 self.showing_results = True
-        elif self.showing_instructions:
-            if self.back_rect.collidepoint(pos):
-                self.showing_instructions = False
-                self.in_menu = True
-        elif self.showing_results:
-            if self.back_rect.collidepoint(pos):
-                self.showing_results = False
-                self.in_menu = True
+
+        elif self.showing_instructions and self.back_rect.collidepoint(pos):
+            self.showing_instructions = False
+            self.in_menu = True
+
+        elif self.showing_results and self.back_rect.collidepoint(pos):
+            self.showing_results = False
+            self.in_menu = True
 
     def start_game(self):
         self.running = False 
         game = Game()
         game.new()
-
         while game.running:
             game.main()
         
         self.running = True
         self.in_menu = True
-        self.play_menu_music()
-
+        pygame.mixer.music.stop()
+        play_music(MENU_MUSIC_PATH)
+        
     def render(self):
+        def draw_text(text, font_size, position, center=False):
+            font = pygame.font.Font(FONT_PATH, font_size)
+            rendered_text = font.render(text, True, BLACK)
+            if center:
+                position = (position[0] - rendered_text.get_width() // 2, position[1])
+            self.screen.blit(rendered_text, position)
+
         if self.showing_instructions:
             self.screen.blit(self.instructions_background, (0, 0))
-            pygame.draw.rect(self.screen, (192, 192, 192), self.back_rect) 
-            font = pygame.font.Font(None, 36)
-            text = font.render("Back", True, BLACK)
-            self.screen.blit(text, (self.back_rect.x + 10, self.back_rect.y + 10))
+            pygame.draw.rect(self.screen, GREY, self.back_rect)
+            draw_text("Back", 36, (self.back_rect.x + 10, self.back_rect.y + 10))
+
         elif self.showing_results:
             self.screen.blit(self.results_image, (0, 0))
-            pygame.draw.rect(self.screen, (192, 192, 192), pygame.Rect(60,60,WIDTH-120,HEIGHT-164))
+            pygame.draw.rect(self.screen, GREY, pygame.Rect(60, 60, WIDTH - 120, HEIGHT - 164))
+            pygame.draw.rect(self.screen, GREY, self.back_rect)
             
-            pygame.draw.rect(self.screen, (192, 192, 192), self.back_rect) 
-            font = pygame.font.Font(None, 36)
-            title_font = pygame.font.Font(None, 50)
-            text = title_font.render("High scores", True, BLACK)
-            self.screen.blit(text,(WIDTH//2 - text.get_width()//2, 70))
-            button_text = font.render("Back", True, BLACK)
-            self.screen.blit(button_text, (self.back_rect.x + 10, self.back_rect.y + 10))
+            draw_text("High scores", 50, (WIDTH // 2, 70), center=True)
+            draw_text("Back", 36, (self.back_rect.x + 10, self.back_rect.y + 10))
 
             scores = load_scores()
-            
             for i, score in enumerate(scores):
-                score_text = font.render(f"{i + 1}. {score['name']} - {score['time']}", True, BLACK)
-                self.screen.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, 130 + i * 50))
+                draw_text(f"{i + 1}. {score['name']} - {score['time']}", 36, (WIDTH // 2, 130 + i * 50), center=True)
+
         else:
             self.screen.blit(self.background, (0, 0))
-        
+            
         pygame.display.flip()
-        self.clock.tick(60)
+        self.clock.tick(FPS)

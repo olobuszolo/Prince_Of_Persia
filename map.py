@@ -4,7 +4,7 @@ import pygame
 import math
 import time
 
-class Block(pygame.sprite.Sprite): #B
+class Block(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
         self._layer = BLOCK_LAYER
@@ -16,8 +16,7 @@ class Block(pygame.sprite.Sprite): #B
         self.width = TILESIZE
         self.height = TILESIZE
 
-        image_brick = pygame.image.load("resources/images/map_images/newbrick.png")
-        self.image = pygame.transform.scale(image_brick, (self.width, self.height))
+        self.image = BRICK_IMAGE
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
@@ -30,8 +29,7 @@ class MovingBlock(Block):
         super().__init__(game, x, y)
         self.height = 4 * TILESIZE
         self.width = 2 * TILESIZE
-        image_brick = pygame.image.load("resources/images/map_images/press.png")
-        self.image = pygame.transform.scale(image_brick, (self.width, self.height))
+        self.image = PRESS_IMAGE
         self.killing_y = self.y + TILESIZE + 1
         
         self.rect = self.image.get_rect()
@@ -45,7 +43,6 @@ class MovingBlock(Block):
         self.groups = self.game.all_sprites, self.game.blocks, self.game.collisions, self.game.movingblocks
         pygame.sprite.Sprite.__init__(self, self.groups)
 
-
     def update(self):
         self.y += self.direction * self.fall_speed
         self.rect.y = self.y
@@ -53,14 +50,14 @@ class MovingBlock(Block):
 
         player_collision = pygame.sprite.spritecollide(self, self.game.players, False)
         if player_collision:
-            if self.y in (self.killing_y-1, self.killing_y + 1):
+            if self.y in (self.killing_y - 1, self.killing_y + 1):
                 self.game.player.press_flag = True
 
         if self.movement_distance >= self.max_distance:
             self.direction *= -1  
             self.movement_distance = 0
 
-class Gate(pygame.sprite.Sprite): #A
+class Gate(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
         self._layer = BLOCK_LAYER
@@ -72,13 +69,12 @@ class Gate(pygame.sprite.Sprite): #A
         self.width = TILESIZE
         self.height = TILESIZE
 
-        image_brick = pygame.image.load("resources/images/map_images/newbrick.png")
-        self.image = pygame.transform.scale(image_brick, (self.width, self.height))
+        self.image = BRICK_IMAGE
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
         
-class Door(pygame.sprite.Sprite): #D
+class Door(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
         self._layer = BLOCK_LAYER
@@ -92,9 +88,9 @@ class Door(pygame.sprite.Sprite): #D
         
         self.is_open = False
 
-        self.image_brick_close = pygame.image.load("resources/images/map_images/door_stairs.png")
-        self.image_brick_open = pygame.image.load("resources/images/map_images/door_stairs_open.png")
-        self.image = pygame.transform.scale(self.image_brick_close, (self.width, self.height))
+        self.image_brick_close = DOORS_IMAGE_CLOSE
+        self.image_brick_open = DOORS_IMAGE_OPEN
+        self.image = self.image_brick_close
 
         self.rect = self.image.get_rect()
         self.rect.bottomleft = (self.x - 32, self.y + 32)
@@ -102,11 +98,11 @@ class Door(pygame.sprite.Sprite): #D
     def update(self):
         if self.game.player.get_next_level_pred():
             if not self.is_open:
-                self.image = pygame.transform.scale(self.image_brick_open, (self.width, self.height))
+                self.image = self.image_brick_open
                 self.is_open = True
         else:
             if self.is_open:
-                self.image = pygame.transform.scale(self.image_brick_close, (self.width, self.height))
+                self.image = self.image_brick_close
                 self.is_open = False
 
 class FallingLeft(pygame.sprite.Sprite): #falling bricks
@@ -121,14 +117,10 @@ class FallingLeft(pygame.sprite.Sprite): #falling bricks
         self.width = TILESIZE
         self.height = 0.5 * TILESIZE
 
-        self.images = [
-            pygame.image.load("resources/images/map_images/fake.png"),
-            pygame.image.load("resources/images/map_images/fake1.png"),
-            pygame.image.load("resources/images/map_images/fake2.png")
-        ]
+        self.images = FALLING_IMAGES
         self.image_index = 0
+        self.image = self.images[self.image_index]
 
-        self.image = pygame.transform.scale(self.images[self.image_index], (self.width, self.height))
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
@@ -143,7 +135,7 @@ class FallingLeft(pygame.sprite.Sprite): #falling bricks
     def activate(self):
         player_y = self.game.player.rect.y
         player_x = self.game.player.rect.x
-        if (player_y > self.rect.y + 2*TILESIZE) and (player_x + 2*TILESIZE> self.rect.x):
+        if (player_y > self.rect.y + 2 * TILESIZE) and (player_x + 2 * TILESIZE > self.rect.x):
             self.fall_speed = FALL_SPEED // 2
 
     def update(self):
@@ -165,7 +157,7 @@ class FallingLeft(pygame.sprite.Sprite): #falling bricks
             if current_time - self.last_change_time >= CHANGE_INTERVAL/3:
                 self.image_index += 1
                 if self.image_index < len(self.images):
-                    self.image = pygame.transform.scale(self.images[self.image_index], (self.width, self.height))
+                    self.image = self.images[self.image_index]
                     self.damage = False
 
                 else:
@@ -184,7 +176,7 @@ class FallingRight(FallingLeft):
     def activate(self):
             player_y = self.game.player.rect.y
             player_x = self.game.player.rect.x
-            if (player_y > self.rect.y + 2*TILESIZE) and (player_x < self.rect.x + 4*TILESIZE):
+            if (player_y > self.rect.y + 2 * TILESIZE) and (player_x < self.rect.x + 4 * TILESIZE):
                 self.fall_speed = FALL_SPEED
 
 class FallingLeftBottomUp(FallingLeft):
@@ -193,7 +185,7 @@ class FallingLeftBottomUp(FallingLeft):
     def activate(self):
         player_y = self.game.player.rect.y
         player_x = self.game.player.rect.x
-        if ((player_x + 2*TILESIZE> self.rect.x) and (player_y - self.rect.y < 4*TILESIZE)):
+        if ((player_x + 2 * TILESIZE > self.rect.x) and (player_y - self.rect.y < 4 * TILESIZE)):
             self.fall_speed = FALL_SPEED
 
 class Spikes(pygame.sprite.Sprite):
@@ -209,8 +201,7 @@ class Spikes(pygame.sprite.Sprite):
         self.width = TILESIZE
         self.height = TILESIZE * 1.3
 
-        self.image_spike = pygame.image.load("resources/images/map_images/spikes.png")
-        self.image = pygame.transform.scale(self.image_spike, (self.width, self.height))
+        self.image = SPIKES_IMAGE
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
@@ -219,7 +210,6 @@ class Spikes(pygame.sprite.Sprite):
         self.damage = 32
         self.damage_time = 0
         self.inside = False
-
 
     def update(self):
         current_time = pygame.time.get_ticks()
@@ -251,13 +241,12 @@ class SemiDoors(pygame.sprite.Sprite):
         self.y = y * TILESIZE
         self.width = TILESIZE
         self.height = TILESIZE * 2
-        self.image_spike = pygame.image.load("resources/images/map_images/halfdoors.png")
-        self.image = pygame.transform.scale(self.image_spike, (self.width, self.height))
+        self.image = SEMI_DOORS_IMAGE
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
 
-class Protection(Block): #makes it impossible to return to lower level
+class Protection(Block):
     def __init__(self, game, x, y):
         super().__init__(game, x, y)
 
@@ -266,8 +255,7 @@ class Protection(Block): #makes it impossible to return to lower level
         self.width = TILESIZE
         self.height = TILESIZE
 
-        image_brick = pygame.image.load("resources/images/map_images/halfdoors.png")
-        self.image = pygame.transform.scale(image_brick, (self.width, self.height))
+        self.image = SEMI_DOORS_IMAGE
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
@@ -284,13 +272,10 @@ class NewTrap(pygame.sprite.Sprite):
         self.width = TILESIZE
         self.height = TILESIZE
 
-        self.images = [
-            pygame.image.load("resources/images/map_images/newbrick.png"),
-            pygame.image.load("resources/images/map_images/empty.png")
-        ]
+        self.images = [BRICK_IMAGE, EMPTY_IMAGE]
         self.image_index = 0
 
-        self.image = pygame.transform.scale(self.images[self.image_index], (self.width, self.height))
+        self.image = self.images[self.image_index]
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
@@ -302,13 +287,13 @@ class NewTrap(pygame.sprite.Sprite):
         if curr_time >= self.dissapear_time + 200:
             self.image_index = 0
             self.blocked = True
-            self.image = pygame.transform.scale(self.images[self.image_index], (self.width, self.height))
+            self.image = self.images[self.image_index]
 
         collisions = pygame.sprite.spritecollide(self, self.game.players, False)
         if collisions:
             self.collision_time = pygame.time.get_ticks()
             self.image_index = 1
-            self.image = pygame.transform.scale(self.images[self.image_index], (self.width, self.height))
+            self.image = self.images[self.image_index]
             self.game.player.trap_status = False
 
 class Lift(pygame.sprite.Sprite):
@@ -326,8 +311,7 @@ class Lift(pygame.sprite.Sprite):
         self.start_x = x*TILESIZE
         self.start_y = y*TILESIZE
 
-        lift_image = pygame.image.load("resources/images/map_images/fake.png")
-        self.image = pygame.transform.scale(lift_image, (self.width, self.height))
+        self.image = FALLING_IMAGES[0]
 
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
@@ -353,87 +337,9 @@ class Lift(pygame.sprite.Sprite):
             if self.game.player.is_on_lift:
                 self.game.player.rect.x = self.rect.x - 32
                 self.game.player.rect.y = self.rect.y + 4
-                self.game.player.is_on_lift = False
-        
-# class UpperPress(Lift):
-#     def __init__(self, game, x, y):
-#         super().__init__(game, x, y)
-#         self.groups = self.game.all_sprites, self.game.upper_press
-#         pygame.sprite.Sprite.__init__(self, self.groups)
+                self.game.player.is_on_lift = False       
 
-#         self.start_y = self.y = y * TILESIZE - 15
-#         self.fall_speed = - FALL_SPEED * 0.5
-
-
-#     def update(self):
-#         if not self.collided:
-#             self.rect.y -= self.fall_speed
-
-#         collisions = pygame.sprite.spritecollide(self, self.game.blocks, False)
-
-#         lift_collision = pygame.sprite.spritecollide(self, self.game.down_press, False)
-
-#         for sprite in collisions:
-#             if sprite != self:
-#                 self.collided = True
-#                 break
-#         if self.collided:
-#             self.fall_speed = -self.fall_speed 
-#             self.rect.y = self.rect.y 
-#             self.collided = False
-#         if self.rect.y == self.start_y:
-#             self.fall_speed = - self.fall_speed
-
-#         for sprite in lift_collision:
-#             if sprite != self:
-#                 self.fall_speed = - self.fall_speed
-
-
-
-# class DownPress(pygame.sprite.Sprite):  #X
-#     def __init__(self, game, x, y):
-#         self.game = game
-#         self._layer = BLOCK_LAYER
-#         self.groups = self.game.all_sprites, self.game.down_press
-#         pygame.sprite.Sprite.__init__(self, self.groups)
-
-#         self.x = x * TILESIZE
-#         self.y = y * TILESIZE 
-#         self.width = TILESIZE
-#         self.height = TILESIZE//2
-
-#         self.start_y = y * TILESIZE - 15
-
-#         lift_image = pygame.image.load("resources/images/map_images/fake.png")
-#         self.image = pygame.transform.scale(lift_image, (self.width, self.height))
-
-#         self.rect = self.image.get_rect()
-#         self.rect.topleft = (self.x, self.y)
-
-#         self.collided = False
-#         self.next_image_time = pygame.time.get_ticks()
-#         self.fall_speed = FALL_SPEED 
-
-#     def update(self):
-#         if not self.collided:
-#             self.rect.y -= self.fall_speed
-
-#         collisions = pygame.sprite.spritecollide(self, self.game.upper_press, False)
-
-#         for sprite in collisions:
-#             if sprite != self:
-#                 self.collided = True
-#                 break
-#         if self.collided:
-#             self.fall_speed = -self.fall_speed
-#             self.rect.y -= self.fall_speed 
-
-#             self.collided = False
-#         if self.rect.y >= self.start_y + 32:
-#             self.fall_speed = -self.fall_speed
-#             self.rect.y -= self.fall_speed 
-            
-class Fakes(pygame.sprite.Sprite): #V
+class Fakes(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
         self._layer = BLOCK_LAYER
@@ -443,6 +349,6 @@ class Fakes(pygame.sprite.Sprite): #V
         self.y = y * TILESIZE
         self.width = TILESIZE
         self.height = TILESIZE
-        self.image = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+        self.image = EMPTY_IMAGE
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
