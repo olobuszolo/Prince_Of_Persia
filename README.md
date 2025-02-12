@@ -62,7 +62,7 @@ Prince_Of_Persia/
 │── 🗺️ mapa.py          # Mapowanie poziomów
 │── ⚙️ config.py        # Ustawienia gry
 │── 🏆 high_scores.json # Zapis najlepszych wyników
-│── 🎨 resources/          # Pliki graficzne i dźwiękowe
+│── 🎨 resources/       # Pliki graficzne i dźwiękowe
 ```
 
 ## 🐞 Znane błędy i problemy
